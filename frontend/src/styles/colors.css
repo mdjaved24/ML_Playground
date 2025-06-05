@@ -1,0 +1,120 @@
+/* src/styles/colors.css */
+:root {
+  /* Vibrant purple primary palette */
+  --color-primary-50: #f5f3ff;
+  --color-primary-100: #ede9fe;
+  --color-primary-200: #ddd6fe;
+  --color-primary-300: #c4b5fd;
+  --color-primary-400: #a78bfa; /* Main primary */
+  --color-primary-500: #8b5cf6;
+  --color-primary-600: #7c3aed;
+  --color-primary-700: #6d28d9;
+  --color-primary-800: #5b21b6;
+  --color-primary-900: #4c1d95;
+
+  /* Futuristic teal secondary */
+  --color-secondary-50: #f0fdfa;
+  --color-secondary-100: #ccfbf1;
+  --color-secondary-200: #99f6e4;
+  --color-secondary-300: #5eead4;
+  --color-secondary-400: #2dd4bf; /* Main secondary */
+  --color-secondary-500: #14b8a6;
+  --color-secondary-600: #0d9488;
+  --color-secondary-700: #0f766e;
+  --color-secondary-800: #115e59;
+  --color-secondary-900: #134e4a;
+
+  /* Dark accent - deep magenta */
+  --color-accent-400: #db2777;
+  --color-accent-500: #be185d;
+  --color-accent-600: #9d174d;
+
+  /* Neutrals with cool undertones */
+  --color-gray-50: #f8fafc;
+  --color-gray-100: #f1f5f9;
+  --color-gray-200: #e2e8f0;
+  --color-gray-300: #cbd5e1;
+  --color-gray-400: #94a3b8;
+  --color-gray-500: #64748b;
+  --color-gray-600: #475569;
+  --color-gray-700: #334155;
+  --color-gray-800: #1e293b;
+  --color-gray-900: #0f172a;
+
+  /* Special glow effect for tech vibe */
+  --color-glow: rgba(199, 210, 254, 0.5);
+}
+
+/* Global styles using the color variables */
+body {
+  font-family: 'Inter', sans-serif;
+  color: var(--color-gray-800);
+  background-color: var(--color-gray-50);
+  margin: 0;
+  padding: 0;
+}
+
+.gradient-bg {
+  background: linear-gradient(135deg, var(--color-primary-50) 0%, var(--color-gray-50) 100%);
+}
+
+.gradient-header {
+  background: linear-gradient(90deg, var(--color-primary-600) 0%, var(--color-accent-500) 100%);
+}
+
+.gradient-text {
+  background: linear-gradient(90deg, var(--color-primary-600), var(--color-accent-500));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.btn-primary {
+  background-color: var(--color-primary-600);
+  color: white;
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+  background-color: var(--color-primary-700);
+  box-shadow: 0 0 0 3px var(--color-glow);
+}
+
+.btn-secondary {
+  background-color: var(--color-secondary-500);
+  color: var(--color-gray-900);
+  transition: all 0.3s ease;
+}
+
+.btn-secondary:hover {
+  background-color: var(--color-secondary-600);
+}
+
+.btn-accent {
+  background-color: var(--color-accent-500);
+  color: white;
+  transition: all 0.3s ease;
+}
+
+.btn-accent:hover {
+  background-color: var(--color-accent-600);
+}
+
+.glow-effect {
+  box-shadow: 0 0 10px var(--color-glow);
+}
+
+.full-width {
+  width: 100vw;
+  position: relative;
+  left: 50%;
+  right: 50%;
+  margin-left: -50vw;
+  margin-right: -50vw;
+}
+
+/* Ensure content stays centered while backgrounds extend full width */
+.full-width > div {
+  max-width: 100%;
+  margin: 0 auto;
+}
