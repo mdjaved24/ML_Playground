@@ -135,7 +135,7 @@ function Login() {
             <div className="bg-[var(--color-gray-50)] px-6 py-4 border-t border-[var(--color-gray-200)] text-center">
               <p className="text-sm text-[var(--color-gray-600)]">
                 Don't have an account?{' '}
-                <Link to="/register" className="font-medium text-[var(--color-primary-600)] hover:text-[var(--color-primary-500)]">
+                <Link to="/signup" className="font-medium text-[var(--color-primary-600)] hover:text-[var(--color-primary-500)]">
                   Sign up
                 </Link>
               </p>

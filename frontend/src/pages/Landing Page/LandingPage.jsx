@@ -1,6 +1,8 @@
 // src/App.jsx
 import React from 'react';
 import '../../styles/colors.css';
+import { Link } from 'react-router-dom';
+
 
 function App() {
   return (
@@ -20,11 +22,11 @@ function App() {
             <div className="hidden md:flex items-center space-x-8">
               <a href="#features" className="hover:text-[var(--color-secondary-300)] transition">Features</a>
               <a href="#how-it-works" className="hover:text-[var(--color-secondary-300)] transition">How it Works</a>
-              <button className="btn-accent px-4 py-2 rounded-md transition glow-effect hover:cursor-pointer">
+              <Link to='/login'><button className="btn-accent px-4 py-2 rounded-md transition glow-effect hover:cursor-pointer">
                 Launch Playground
-              </button>
+              </button></Link>
               <button className="btn-accent px-4 py-2 rounded-md transition glow-effect hover:cursor-pointer">
-                Register
+                Sign up
               </button>
             </div>
             <button className="md:hidden text-white">
@@ -48,9 +50,9 @@ function App() {
                 Train, evaluate, and deploy machine learning models without writing code. Perfect for data scientists, analysts, and ML enthusiasts.
               </p>
               <div className="flex flex-wrap gap-4">
-                <button className="btn-primary px-6 py-3 rounded-lg transition glow-effect">
+                <Link to='/login'><button className="btn-primary px-6 py-3 rounded-lg transition glow-effect hover:cursor-pointer">
                   Play Now
-                </button>
+                </button></Link>
                 {/* <button className="border border-[var(--color-primary-600)] text-[var(--color-primary-600)] px-6 py-3 rounded-lg hover:bg-[var(--color-primary-50)] transition">
                   Watch Demo
                 </button> */}
@@ -91,22 +93,6 @@ function App() {
         </div>
       </section>
 
-      {/* Logo Cloud */}
-      {/* <section className="py-12 bg-white full-width border-y border-[var(--color-gray-200)]">
-        <div className="mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-7xl mx-auto">
-            <p className="text-center text-sm text-[var(--color-gray-500)] mb-8">TRUSTED BY DATA TEAMS AT</p>
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-8 items-center justify-center">
-              {['Google', 'Microsoft', 'Amazon', 'Tesla', 'Nvidia'].map((company) => (
-                <div key={company} className="flex items-center justify-center">
-                  <span className="text-xl font-bold text-[var(--color-gray-700)] opacity-80">{company}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section> */}
-
      {/* Features Section */}
 <section id="features" className="py-20 bg-white full-width">
   <div className="mx-auto px-4 sm:px-6 lg:px-8">
@@ -119,7 +105,7 @@ function App() {
           Everything you need to start working with machine learning, no coding required
         </p>
       </div>
-      <div className="grid md:grid-cols-3 gap-8">
+      <div className="grid md:grid-cols-3 gap-8 hover:cursor-pointer">
         {[
           {
             icon: "📂",
@@ -182,7 +168,7 @@ function App() {
               </p>
             </div>
 
-             <div className="grid md:grid-cols-4 gap-8">
+             <div className="grid md:grid-cols-4 gap-8 hover:cursor-pointer">
               {[
                 {
                   title: "Upload Data",
@@ -234,9 +220,9 @@ function App() {
               Understand the flow of Machine Learning by using ML Playground today.
             </p>
             <div className="flex flex-wrap justify-center gap-4">
-              <button className="btn-secondary px-8 py-4 rounded-lg font-bold hover:shadow-lg transition hover:cursor-pointer">
+              <Link to='/login'><button className="btn-secondary px-8 py-4 rounded-lg font-bold hover:shadow-lg transition hover:cursor-pointer">
                 Play Now
-              </button>
+              </button></Link>
             </div>
           </div>
         </div>
