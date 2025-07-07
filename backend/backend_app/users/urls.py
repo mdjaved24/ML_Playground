@@ -2,7 +2,7 @@ from django.urls import path
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 from backend_app.users.views import (logout_view, login_view, get_all_users,SecretQuestionListView, UserRegistrationView,
-                                     PasswordResetRequestView, VerifySecretAnswerView, SetNewPasswordView, ChangePasswordView)
+                                     PasswordResetRequestView, VerifySecretAnswerView, SetNewPasswordView, ChangePasswordView, GetSecretQuestion)
 
 urlpatterns = [
     # JWT Authentication URLs - 
@@ -13,8 +13,9 @@ urlpatterns = [
     path('allusers/', get_all_users, name='get-all-users'),
     path('register/', UserRegistrationView.as_view(), name='register'),
     path('secret-questions/', SecretQuestionListView.as_view(), name='secret-questions'),
-    path('verify-secret-answer/', VerifySecretAnswerView.as_view(), name='verify-secret-answer'),
+    path('verify-secret-answer/<str:username>/', VerifySecretAnswerView.as_view(), name='verify-secret-answer'),
     path('password-reset-request/', PasswordResetRequestView.as_view(), name='password-reset-request'),
-    path('set-new-password/', SetNewPasswordView.as_view(), name='set-new-password'),
+    path('reset-password/<str:username>/', SetNewPasswordView.as_view(), name='reset-password'),
     path('change-password/', ChangePasswordView.as_view(), name='change-password'),
+    path('user-secret-question/<str:username>/', GetSecretQuestion.as_view(), name='secret-question'),
 ]

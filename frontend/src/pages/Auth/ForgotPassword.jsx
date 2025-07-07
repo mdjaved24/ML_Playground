@@ -1,11 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Footer from '../../components/Footer';
+import { Toaster, toast } from 'sonner';
+import axios from 'axios';
 
 function ForgotPassword() {
-  const [step, setStep] = useState(1); // 1: username input, 2: security questions, 3: password reset
+  const [step, setStep] = useState(1);
   const [username, setUsername] = useState('');
   const [securityQuestions, setSecurityQuestions] = useState([]);
+  const [passwordStrength, setPasswordStrength] = useState(0);
   const [answers, setAnswers] = useState({});
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -14,70 +17,129 @@ function ForgotPassword() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
+  const API_URL = import.meta.env.VITE_API_URL;
+
+  useEffect(() => {
+    // Password strength calculation
+    let strength = 0;
+    if (newPassword.length > 0) strength += 1;
+    if (newPassword.length >= 8) strength += 1;
+    if (/[A-Z]/.test(newPassword)) strength += 1;
+    if (/[0-9]/.test(newPassword)) strength += 1;
+    if (/[^A-Za-z0-9]/.test(newPassword)) strength += 1;
+    setPasswordStrength(strength);
+  }, [newPassword])
+  
+  const getPasswordStrengthColor = () => {
+    if (passwordStrength === 0) return 'bg-gray-200';
+    if (passwordStrength <= 2) return 'bg-red-500';
+    if (passwordStrength === 3) return 'bg-yellow-500';
+    if (passwordStrength >= 4) return 'bg-green-500';
+  };
+
   const handleUsernameSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError('');
     
     try {
-      // Mock API call - replace with your actual API call
-      const response = await fetch('/api/auth/get-security-questions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ username }),
+      const response = await axios.get(`${API_URL}/user/user-secret-question/${username}/`, {
+        headers: { 'Content-Type': 'application/json' }
       });
       
-      const data = await response.json();
-      
-      if (response.ok) {
-        setSecurityQuestions(data.questions);
-        setStep(2);
-      } else {
-        setError(data.message || 'Failed to retrieve security questions');
-      }
+      setSecurityQuestions(response.data);
+      setStep(2);
     } catch (err) {
-      setError('Network error. Please try again.');
-    } finally {
       setLoading(false);
+      if (err.response) {
+        if (err.response.status === 404) {
+          setError('User not found');
+          toast.error('User not found. Please check the username and try again.');
+        } else {
+          const errorMsg = err.response.data?.detail || 
+                        err.response.data?.message || 
+                        'Failed to retrieve security questions';
+          setError(errorMsg);
+          toast.error(errorMsg);
+        }
+      } else if (err.request) {
+        setError('Network error. Please check your connection.');
+        toast.error('Network error. Please check your connection.');
+      } else {
+        setError('An unexpected error occurred.');
+        toast.error('An unexpected error occurred.');
+      }
     }
   };
 
   const handleSecurityAnswersSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError('');
-    
-    try {
-      // Mock API call - replace with your actual API call
-      const response = await fetch('/api/auth/verify-security-answers', {
-        method: 'POST',
+  e.preventDefault();
+  setLoading(true);
+  setError('');
+  
+  try {
+    // 1. Prepare request data with debugging
+    const requestData = securityQuestions.map(q => ({
+      question_id: q.id,
+      answer: (answers[q.question] || '').trim().toLowerCase()
+    }));
+
+    console.log("Request payload:", {
+      url: `${API_URL}/user/verify-secret-answer/${username}/`,
+      method: "POST",
+      data: requestData
+    });
+
+    // 2. Make the API call with error handling
+    const response = await axios.post(
+      `${API_URL}/user/verify-secret-answer/${username}/`,
+      requestData,
+      {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          username,
-          answers: Object.entries(answers).map(([question, answer]) => ({
-            question,
-            answer
-          }))
-        }),
-      });
-      
-      const data = await response.json();
-      
-      if (response.ok) {
-        setStep(3);
-      } else {
-        setError(data.message || 'Security answers do not match our records');
       }
-    } catch (err) {
-      setError('Network error. Please try again.');
-    } finally {
-      setLoading(false);
+    );
+
+    console.log("Response:", response.data);
+
+    // 3. Handle response
+    if (response.status==200) {
+      setStep(3);
+      toast.success('Answers verified successfully!');
+    } else {
+      const errorMsg = response.data.message || 'Verification failed';
+      setError(errorMsg);
+      toast.error(errorMsg);
     }
-  };
+  } catch (err) {
+    console.error("Full error:", err);
+    
+    // Detailed error analysis
+    let errorMsg = 'Verification failed';
+    if (err.response) {
+      console.error("Response data:", err.response.data);
+      console.error("Status code:", err.response.status);
+      
+      if (err.response.status === 404) {
+        errorMsg = `User not found`;
+      } else {
+        errorMsg = err.response.data?.detail || 
+                  err.response.data?.message || 
+                  `Server error (${err.response.status})`;
+      }
+    } else if (err.request) {
+      errorMsg = 'No response from server';
+      console.error("Request was made but no response:", err.request);
+    } else {
+      errorMsg = err.message || 'Request setup failed';
+    }
+    setError(errorMsg);
+    toast.error(errorMsg);
+  } finally {
+    setLoading(false);
+  }
+};
 
   const handlePasswordReset = async (e) => {
     e.preventDefault();
@@ -91,28 +153,25 @@ function ForgotPassword() {
     setError('');
     
     try {
-      // Mock API call - replace with your actual API call
-      const response = await fetch('/api/auth/reset-password', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          username,
-          newPassword
-        }),
-      });
+      const response = await axios.post(
+        `${API_URL}/user/reset-password/${username}/`,
+        { new_password:newPassword, confirm_password:confirmPassword },
+        {
+          headers: { 'Content-Type': 'application/json' }
+        }
+      );
       
-      const data = await response.json();
-      
-      if (response.ok) {
+      if (response.status==200) {
         setSuccess('Password reset successfully! Redirecting to login...');
-        setTimeout(() => navigate('/login'), 3000);
+        toast.success('Password reset successfully!');
+        setTimeout(() => navigate('/login'), 1000);
       } else {
-        setError(data.message || 'Failed to reset password');
+        setError(response.data.message || 'Failed to reset password');
+        toast.error(response.data.message || 'Failed to reset password');
       }
     } catch (err) {
       setError('Network error. Please try again.');
+      toast.error('Network error. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -128,6 +187,7 @@ function ForgotPassword() {
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-[var(--color-primary-50)] to-[var(--color-gray-50)]">
       {/* Header */}
+      <Toaster richColors position="top-right"/>
       <header className="bg-white shadow-sm full-width">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center">
@@ -192,7 +252,7 @@ function ForgotPassword() {
                         type="text"
                         required
                         value={username}
-                        onChange={(e) => setUsername(e.target.value)}
+                        onChange={(e) => setUsername(e.target.value.trim())}
                         className="block w-full pl-10 pr-3 py-2 border border-[var(--color-gray-300)] rounded-md focus:outline-none focus:ring-[var(--color-primary-500)] focus:border-[var(--color-primary-500)] sm:text-sm"
                         placeholder="johndoe"
                       />
@@ -203,7 +263,7 @@ function ForgotPassword() {
                     <button
                       type="submit"
                       disabled={loading}
-                      className={`w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gradient-to-r from-[var(--color-primary-600)] to-[var(--color-accent-500)] hover:from-[var(--color-primary-700)] hover:to-[var(--color-accent-600)] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--color-primary-500)] transition ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                      className={`w-full flex justify-center hover:cursor-pointer py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gradient-to-r from-[var(--color-primary-600)] to-[var(--color-accent-500)] hover:from-[var(--color-primary-700)] hover:to-[var(--color-accent-600)] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--color-primary-500)] transition ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
                     >
                       {loading ? 'Processing...' : 'Continue'}
                     </button>
@@ -213,17 +273,17 @@ function ForgotPassword() {
 
               {step === 2 && (
                 <form className="space-y-6" onSubmit={handleSecurityAnswersSubmit}>
-                  {securityQuestions.map((question, index) => (
-                    <div key={index}>
+                  {securityQuestions.map((q, index) => (
+                    <div key={q.id || index}>
                       <label htmlFor={`answer-${index}`} className="block text-sm font-medium text-[var(--color-gray-700)] mb-1">
-                        {question}
+                        {q.question}
                       </label>
                       <input
                         id={`answer-${index}`}
                         type="text"
                         required
-                        value={answers[question] || ''}
-                        onChange={(e) => handleAnswerChange(question, e.target.value)}
+                        value={answers[q.question] || ''}
+                        onChange={(e) => handleAnswerChange(q.question, e.target.value)}
                         className="block w-full px-3 py-2 border border-[var(--color-gray-300)] rounded-md focus:outline-none focus:ring-[var(--color-primary-500)] focus:border-[var(--color-primary-500)] sm:text-sm"
                         placeholder="Your answer"
                       />
@@ -240,10 +300,10 @@ function ForgotPassword() {
                     </button>
                     <button
                       type="submit"
-                      disabled={loading}
-                      className={`py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gradient-to-r from-[var(--color-primary-600)] to-[var(--color-accent-500)] hover:from-[var(--color-primary-700)] hover:to-[var(--color-accent-600)] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--color-primary-500)] transition ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                      // disabled={loading}
+                      className={`py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gradient-to-r from-[var(--color-primary-600)] to-[var(--color-accent-500)] hover:from-[var(--color-primary-700)] hover:to-[var(--color-accent-600)] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--color-primary-500)] transition `}
                     >
-                      {loading ? 'Verifying...' : 'Verify Answers'}
+                      Verify 
                     </button>
                   </div>
                 </form>
@@ -261,13 +321,30 @@ function ForgotPassword() {
                       type="password"
                       required
                       value={newPassword}
-                      onChange={(e) => setNewPassword(e.target.value)}
+                      onChange={(e) => setNewPassword(e.target.value.trim())}
                       className="block w-full px-3 py-2 border border-[var(--color-gray-300)] rounded-md focus:outline-none focus:ring-[var(--color-primary-500)] focus:border-[var(--color-primary-500)] sm:text-sm"
                       placeholder="••••••••"
                     />
-                    <p className="mt-2 text-xs text-[var(--color-gray-500)]">
-                      Password must be at least 8 characters long and contain a number and uppercase letter.
-                    </p>
+                    {newPassword && (
+                            <div className="mt-2">
+                              <div className="flex items-center mb-1">
+                                <div className="w-full bg-gray-200 rounded-full h-2.5">
+                                  <div 
+                                    className={`h-2.5 rounded-full ${getPasswordStrengthColor()}`}
+                                    style={{ width: `${passwordStrength * 20}%` }}
+                                  ></div>
+                                </div>
+                                <span className="ml-2 text-xs text-[var(--color-gray-600)]">
+                                  {passwordStrength <= 2 ? 'Weak' : passwordStrength === 3 ? 'Good' : 'Strong'}
+                                </span>
+                              </div>
+                              <ul className="text-xs text-[var(--color-gray-600)] list-disc list-inside">
+                                <li className={newPassword.length >= 8 ? 'text-green-600' : ''}>At least 8 characters</li>
+                                <li className={/[A-Z]/.test(newPassword) ? 'text-green-600' : ''}>Contains uppercase</li>
+                                <li className={/[0-9]/.test(newPassword) ? 'text-green-600' : ''}>Contains number</li>
+                              </ul>
+                            </div>
+                          )}
                   </div>
 
                   <div>
@@ -297,7 +374,7 @@ function ForgotPassword() {
                     <button
                       type="submit"
                       disabled={loading}
-                      className={`py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gradient-to-r from-[var(--color-primary-600)] to-[var(--color-accent-500)] hover:from-[var(--color-primary-700)] hover:to-[var(--color-accent-600)] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--color-primary-500)] transition ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                      className={`py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gradient-to-r from-[var(--color-primary-600)] to-[var(--color-accent-500)] hover:from-[var(--color-primary-700)] hover:to-[var(--color-accent-600)] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--color-primary-500)] hover:cursor-pointer transition ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
                     >
                       {loading ? 'Resetting...' : 'Reset Password'}
                     </button>

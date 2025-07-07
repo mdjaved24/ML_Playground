@@ -57,11 +57,11 @@ function Homepage() {
                 link: "/playground"
               },
               {
-                title: "Use a Template",
-                desc: "Start with pre-configured templates for common tasks",
+                title: "Learn ML Concepts",
+                desc: "Enhance your machine learning skills with our curated learning resources.",
                 icon: "📋",
-                action: "Browse Templates",
-                link: "/templates"
+                action: "Explore Documentation ",
+                link: "/learn"
               },
               {
                 title: "Explore Your Models",

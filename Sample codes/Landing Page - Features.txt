@@ -65,22 +65,9 @@
 
 
 
+react-dom_client.js?v=d4bee1d4:12232 `value` prop on `input` should not be null. Consider using an empty string to clear the component or `undefined` for uncontrolled components.
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Increase the width of signup form box and divide the form into two parts in the same box so that it is less scrollable and entire form is visible on the screen. Also include password strength meter and email validation feedback.
+Playground.jsx:157 Uncaught ReferenceError: selectedOptions is not defined
+    at Playground.jsx:157:28
+    at Playground (Playground.jsx:15:35)
+getting this error while trying to select features ctrl button, just keep it simple like by clicking on it, it should be selected, no need of pressing ctrl for multiselect. And if I am uploading a dataset with more columns, then the preview of dataset is not in a proper way, please fix it

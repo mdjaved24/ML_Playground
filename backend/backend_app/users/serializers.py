@@ -81,36 +81,49 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
 class PasswordResetRequestSerializer(serializers.Serializer):
     username = serializers.CharField(required=True)
 
-class VerifySecretAnswerSerializer(serializers.Serializer):
-    username = serializers.CharField(required=True)
-    question_id = serializers.IntegerField(required=True)
-    answer = serializers.CharField(required=True)
+class VerifySecretAnswerSerializer(serializers.ModelSerializer):
+    user = serializers.SlugRelatedField(slug_field='username', queryset=UserSecretAnswer.objects.all())
+    class Meta:
+        model = UserSecretAnswer
+        fields = '__all__'
+
+
+class UserSecretAnswerSerailizer(serializers.ModelSerializer):
+    user = serializers.SlugRelatedField(slug_field='username', queryset=UserSecretAnswer.objects.all())
+    question = serializers.StringRelatedField()
+
+    class Meta:
+        model = UserSecretAnswer
+        fields = '__all__'
+        read_only_fields = ['id','question','answer']
 
 
 class SetNewPasswordSerializer(serializers.Serializer):
-    username = serializers.CharField(required=True)
     new_password = serializers.CharField(required=True, validators=[validate_password])
     confirm_password = serializers.CharField(required=True)
 
     def validate(self, attrs):
         if attrs['new_password'] != attrs['confirm_password']:
             raise serializers.ValidationError({"password": "Password fields didn't match."})
+        
         return attrs
     
 class ChangePasswordSerializer(serializers.Serializer):
-    old_password = serializers.CharField(required=True)
+    current_password = serializers.CharField(required=True)
     new_password = serializers.CharField(required=True, validators=[validate_password])
     confirm_password = serializers.CharField(required=True)
 
-    def validate_old_password(self, value):
+    def validate_current_password(self, value):
         user = self.context['request'].user
         if not user.check_password(value):
-            raise serializers.ValidationError("Old password is not correct")
+            raise serializers.ValidationError("Current password is incorrect")
         return value
 
     def validate(self, attrs):
         if attrs['new_password'] != attrs['confirm_password']:
             raise serializers.ValidationError({"password": "Password fields didn't match."})
+        if attrs['new_password'] == attrs['current_password']:
+            raise serializers.ValidationError({"password": "New Password is same as current password."})
         return attrs
 
 

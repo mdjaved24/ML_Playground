@@ -1,11 +1,17 @@
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { useState, useRef, useEffect } from 'react';
+import { Toaster, toast } from 'sonner';
 import ChangePasswordModal from '../modals/ChangePassword';
+import axios from 'axios';
+
 
 function Navbar() {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
   const dropdownRef = useRef(null);
+
+  const API_URL = import.meta.env.VITE_API_URL;
+
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -21,9 +27,41 @@ function Navbar() {
     };
   }, []);
 
+  const navigate = useNavigate(); // if in a component
+  const refreshToken = localStorage.getItem('refresh');
+
+  const handleLogout = async () => {
+
+  if (!refreshToken) {
+    toast.error('No refresh token found');
+    console.warn('No refresh token found');
+    return;
+  }
+
+  try {
+    await axios.post(`${API_URL}/user/logout/`, {
+      refresh_token: refreshToken,
+    });
+
+    // Clear stored tokens
+    localStorage.removeItem('access');
+    localStorage.removeItem('refresh');
+    toast.success('Logout successful!');
+
+    setTimeout(() => {
+          navigate('/login');
+        }, 500); // delay navigation for 0.5 seconds
+    console.log('Logout Successful');
+
+  } catch (error) {
+    console.error('Logout failed:', error.response?.data || error.message);
+  }
+};
+
   return (
     <>
       <nav className="gradient-header text-white shadow-lg sticky top-0 z-40 full-width">
+        <Toaster richColors position="top-right"/>
         <div className="mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16 items-center max-w-7xl mx-auto">
             {/* Logo/Brand */}
@@ -39,7 +77,7 @@ function Navbar() {
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center space-x-1">
               <NavLink 
-                to="/" 
+                to="/home" 
                 className={({isActive}) => `px-4 py-2 rounded-md transition ${isActive ? 'bg-white/10 font-medium' : 'hover:bg-white/5'}`}
               >
                 Home
@@ -56,11 +94,11 @@ function Navbar() {
                 to="/models" 
                 className={({isActive}) => `px-4 py-2 rounded-md transition ${isActive ? 'bg-white/10 font-medium' : 'hover:bg-white/5'}`}
               >
-                My Models
+                Models
               </NavLink>
               
               <NavLink 
-                to="/templates" 
+                to="/dashboard" 
                 className={({isActive}) => `px-4 py-2 rounded-md transition ${isActive ? 'bg-white/10 font-medium' : 'hover:bg-white/5'}`}
               >
                 Dashboard
@@ -73,9 +111,9 @@ function Navbar() {
                 Learn
               </NavLink>
               
-              <button className="btn-accent ml-4 px-4 py-2 rounded-md transition glow-effect">
+              {/* <button className="btn-accent ml-4 px-4 py-2 rounded-md transition glow-effect">
                 New Project
-              </button>
+              </button> */}
             </div>
 
             {/* Profile dropdown */}
@@ -83,7 +121,7 @@ function Navbar() {
               <div className="relative">
                 <button 
                   onClick={() => setIsProfileOpen(!isProfileOpen)}
-                  className="flex items-center text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white"
+                  className="flex items-center text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white hover:cursor-pointer"
                 >
                   <span className="sr-only">Open user menu</span>
                   <div className="h-8 w-8 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/30 transition">
@@ -97,35 +135,34 @@ function Navbar() {
                   <div className="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none">
                     <NavLink
                       to="/profile"
-                      className="block px-4 py-2 text-sm text-[var(--color-gray-700)] hover:bg-[var(--color-gray-100)]"
+                      className="block px-4 py-2 text-sm text-[var(--color-gray-700)] hover:bg-[var(--color-gray-100)] hover:cursor-pointer"
                       onClick={() => setIsProfileOpen(false)}
                     >
-                      Your Profile
+                      Profile
                     </NavLink>
                     <button
                       onClick={() => {
                         setIsProfileOpen(false);
                         setShowChangePasswordModal(true);
                       }}
-                      className="w-full text-left block px-4 py-2 text-sm text-[var(--color-gray-700)] hover:bg-[var(--color-gray-100)]"
+                      className="w-full text-left block px-4 py-2 text-sm text-[var(--color-gray-700)] hover:bg-[var(--color-gray-100)] hover:cursor-pointer"
                     >
                       Change Password
                     </button>
                     <NavLink
                       to="/settings"
-                      className="block px-4 py-2 text-sm text-[var(--color-gray-700)] hover:bg-[var(--color-gray-100)]"
+                      className="block px-4 py-2 text-sm text-[var(--color-gray-700)] hover:bg-[var(--color-gray-100)] hover:cursor-pointer"
                       onClick={() => setIsProfileOpen(false)}
                     >
                       Settings
                     </NavLink>
                     <div className="border-t border-[var(--color-gray-200)] my-1"></div>
-                    <NavLink
-                      to="/logout"
-                      className="block px-4 py-2 text-sm text-[var(--color-gray-700)] hover:bg-[var(--color-gray-100)]"
-                      onClick={() => setIsProfileOpen(false)}
+                    <button
+                      className="block px-4 py-2 text-sm text-[var(--color-gray-700)] hover:bg-[var(--color-gray-100)] hover:cursor-pointer"
+                      onClick={handleLogout}
                     >
                       Sign out
-                    </NavLink>
+                    </button>
                   </div>
                 )}
               </div>
@@ -168,9 +205,12 @@ function Navbar() {
               >
                 Change Password
               </button>
-              <NavLink to="/logout" className="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-white/10">
-                Logout
-              </NavLink>
+              <button
+                      className="block px-4 py-2 text-sm text-[var(--color-gray-700)] hover:bg-[var(--color-gray-100)]"
+                      onClick={handleLogout}
+                    >
+                      Sign out
+                    </button>
             </div>
           </div>
         </div>

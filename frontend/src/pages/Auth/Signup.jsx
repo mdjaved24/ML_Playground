@@ -1,36 +1,38 @@
 // src/pages/Signup.jsx
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import Footer from '../../components/Footer';
+import axios from 'axios';
 
 function Signup() {
   const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    username: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
-    secretQuestion1: '',
-    secretAnswer1: '',
-    secretQuestion2: '',
-    secretAnswer2: ''
+  email: '',
+  username: '',
+  first_name: '',
+  last_name: '',
+  password: '',
+  confirm_password: '',
+  secretQuestion1: "",
+  secretAnswer1: "",
+  secretQuestion2: "",
+  secretAnswer2: "",
   });
+
+  const API_URL = import.meta.env.VITE_API_URL;
+  console.log("API_URL:", API_URL);  // Verify value
+
+  const navigate = useNavigate();  // initialize the hook
 
   const [emailValid, setEmailValid] = useState(false);
   const [passwordStrength, setPasswordStrength] = useState(0);
   const [passwordMatch, setPasswordMatch] = useState(true);
+  const [secretQuestions, setSecretQuestions] = useState([]);
 
-  const secretQuestions = [
-    "What was your first pet's name?",
-    "What city were you born in?",
-    "What is your mother's maiden name?",
-    "What was your first school name?",
-    "What is your favorite book?"
-  ];
 
   useEffect(() => {
     // Email validation
+    getSecretQuestions();
+
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     setEmailValid(emailRegex.test(formData.email));
 
@@ -44,7 +46,7 @@ function Signup() {
     setPasswordStrength(strength);
 
     // Password match validation
-    setPasswordMatch(formData.password === formData.confirmPassword || formData.confirmPassword === '');
+    setPasswordMatch(formData.password === formData.confirm_password || formData.confirm_password === '');
   }, [formData]);
 
   const handleChange = (e) => {
@@ -55,10 +57,71 @@ function Signup() {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const getSecretQuestions = async () =>{
+    // e.preventDefault();
+    try {
+      const questions = await axios.get(`${API_URL}/user/secret-questions/`);
+      console.log('Secret Questions: ',questions.data);
+      setSecretQuestions(questions.data);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  
+  useEffect(() => {
+    getSecretQuestions();
+    // console.log(secretQuestions);
+}, []);
+
+// Handler when user selects a question from dropdown for index i
+const handleQuestionChange = (index, questionId) => {
+  const updatedAnswers = [...secretAnswers];
+  updatedAnswers[index].question_id = Number(questionId); // convert to number
+  setSecretAnswers(updatedAnswers);
+};
+
+// Handler when user types answer for index i
+const handleAnswerChange = (index, answer) => {
+  const updatedAnswers = [...secretAnswers];
+  updatedAnswers[index].answer = answer;
+  setSecretAnswers(updatedAnswers);
+};
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!emailValid || passwordStrength < 3 || !passwordMatch) return;
-    console.log(formData);
+const secret_answers = [
+    {
+      question_id: parseInt(formData.secretQuestion1),
+      answer: formData.secretAnswer1.trim(),
+    },
+    {
+      question_id: parseInt(formData.secretQuestion2),
+      answer: formData.secretAnswer2.trim(),
+    },
+  ];
+
+  const payload = {
+    email: formData.email,
+    username: formData.username,
+    first_name: formData.first_name,
+    last_name: formData.last_name,
+    password: formData.password,
+    confirm_password: formData.confirm_password, 
+    secret_answers, 
+  };
+
+    try {
+      console.log(formData);
+      const response = await axios.post(`${API_URL}/user/register/`,payload);
+      console.log(response);
+      if(response.status === 200 || response.status === 201){
+        navigate('/home');
+      }
+
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const getPasswordStrengthColor = () => {
@@ -112,30 +175,30 @@ function Signup() {
                       </h3>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                          <label htmlFor="firstName" className="block text-sm font-medium text-[var(--color-gray-700)] mb-1">
+                          <label htmlFor="first_name" className="block text-sm font-medium text-[var(--color-gray-700)] mb-1">
                             First Name
                           </label>
                           <input
-                            id="firstName"
-                            name="firstName"
+                            id="first_name"
+                            name="first_name"
                             type="text"
                             required
-                            value={formData.firstName}
+                            value={formData.first_name.trim()}
                             onChange={handleChange}
                             className="block w-full px-3 py-2 border border-[var(--color-gray-300)] rounded-md focus:outline-none focus:ring-[var(--color-primary-500)] focus:border-[var(--color-primary-500)] sm:text-sm"
                             placeholder="John"
                           />
                         </div>
                         <div>
-                          <label htmlFor="lastName" className="block text-sm font-medium text-[var(--color-gray-700)] mb-1">
+                          <label htmlFor="last_name" className="block text-sm font-medium text-[var(--color-gray-700)] mb-1">
                             Last Name
                           </label>
                           <input
-                            id="lastName"
-                            name="lastName"
+                            id="last_name"
+                            name="last_name"
                             type="text"
                             required
-                            value={formData.lastName}
+                            value={formData.last_name.trim()}
                             onChange={handleChange}
                             className="block w-full px-3 py-2 border border-[var(--color-gray-300)] rounded-md focus:outline-none focus:ring-[var(--color-primary-500)] focus:border-[var(--color-primary-500)] sm:text-sm"
                             placeholder="Doe"
@@ -165,7 +228,7 @@ function Signup() {
                               name="username"
                               type="text"
                               required
-                              value={formData.username}
+                              value={formData.username.trim()}
                               onChange={handleChange}
                               className="block w-full pl-10 pr-3 py-2 border border-[var(--color-gray-300)] rounded-md focus:outline-none focus:ring-[var(--color-primary-500)] focus:border-[var(--color-primary-500)] sm:text-sm"
                               placeholder="johndoe"
@@ -189,7 +252,7 @@ function Signup() {
                               type="email"
                               autoComplete="email"
                               required
-                              value={formData.email}
+                              value={formData.email.trim()}
                               onChange={handleChange}
                               className={`block w-full pl-10 pr-3 py-2 border ${emailValid || !formData.email ? 'border-[var(--color-gray-300)]' : 'border-red-300'} rounded-md focus:outline-none focus:ring-[var(--color-primary-500)] focus:border-[var(--color-primary-500)] sm:text-sm`}
                               placeholder="you@example.com"
@@ -220,7 +283,7 @@ function Signup() {
                             name="password"
                             type="password"
                             required
-                            value={formData.password}
+                            value={formData.password.trim()}
                             onChange={handleChange}
                             className="block w-full px-3 py-2 border border-[var(--color-gray-300)] rounded-md focus:outline-none focus:ring-[var(--color-primary-500)] focus:border-[var(--color-primary-500)] sm:text-sm"
                             placeholder="••••••••"
@@ -248,20 +311,20 @@ function Signup() {
                         </div>
 
                         <div>
-                          <label htmlFor="confirmPassword" className="block text-sm font-medium text-[var(--color-gray-700)] mb-1">
+                          <label htmlFor="confirm_password" className="block text-sm font-medium text-[var(--color-gray-700)] mb-1">
                             Confirm Password
                           </label>
                           <input
-                            id="confirmPassword"
-                            name="confirmPassword"
+                            id="confirm_password"
+                            name="confirm_password"
                             type="password"
                             required
-                            value={formData.confirmPassword}
+                            value={formData.confirm_password.trim()}
                             onChange={handleChange}
                             className={`block w-full px-3 py-2 border ${passwordMatch ? 'border-[var(--color-gray-300)]' : 'border-red-300'} rounded-md focus:outline-none focus:ring-[var(--color-primary-500)] focus:border-[var(--color-primary-500)] sm:text-sm`}
                             placeholder="••••••••"
                           />
-                          {!passwordMatch && formData.confirmPassword && (
+                          {!passwordMatch && formData.confirm_password && (
                             <p className="mt-1 text-sm text-red-600">Passwords don't match</p>
                           )}
                         </div>
@@ -275,23 +338,26 @@ function Signup() {
                           Security Question 1
                         </label>
                         <select
-                          id="secretQuestion1"
-                          name="secretQuestion1"
-                          required
-                          value={formData.secretQuestion1}
-                          onChange={handleChange}
-                          className="block w-full px-3 py-2 border border-[var(--color-gray-300)] rounded-md focus:outline-none focus:ring-[var(--color-primary-500)] focus:border-[var(--color-primary-500)] sm:text-sm"
-                        >
-                          <option value="">Select a question</option>
-                          {secretQuestions.map((question, index) => (
-                            <option key={index} value={question}>{question}</option>
-                          ))}
+                            id="secretQuestion1"
+                            name="secretQuestion1"
+                            required
+                            value={formData.secretQuestion1}
+                            onChange={handleChange}
+                            className="block w-full px-3 py-2 border border-[var(--color-gray-300)] rounded-md focus:outline-none focus:ring-[var(--color-primary-500)] focus:border-[var(--color-primary-500)] sm:text-sm"
+                          >
+                            <option value="">Select a question</option>
+                            {Array.isArray(secretQuestions) &&
+                              secretQuestions.map((q) => (
+                                <option key={q.id} value={q.id}>
+                                  {q.question}
+                                </option>
+                              ))}
                         </select>
                         <input
                           type="text"
                           name="secretAnswer1"
                           required
-                          value={formData.secretAnswer1}
+                          value={formData.secretAnswer1.trim()}
                           onChange={handleChange}
                           className="block w-full mt-2 px-3 py-2 border border-[var(--color-gray-300)] rounded-md focus:outline-none focus:ring-[var(--color-primary-500)] focus:border-[var(--color-primary-500)] sm:text-sm"
                           placeholder="Your answer"
@@ -311,15 +377,15 @@ function Signup() {
                           className="block w-full px-3 py-2 border border-[var(--color-gray-300)] rounded-md focus:outline-none focus:ring-[var(--color-primary-500)] focus:border-[var(--color-primary-500)] sm:text-sm"
                         >
                           <option value="">Select a question</option>
-                          {secretQuestions.filter(q => q !== formData.secretQuestion1).map((question, index) => (
-                            <option key={`2-${index}`} value={question}>{question}</option>
+                          {secretQuestions.filter(q => q !== formData.secretQuestion1).map((ques) => (
+                            <option key={`2-${ques.id}`} value={ques.id}>{ques.question}</option>
                           ))}
                         </select>
                         <input
                           type="text"
                           name="secretAnswer2"
                           required
-                          value={formData.secretAnswer2}
+                          value={formData.secretAnswer2.trim()}
                           onChange={handleChange}
                           className="block w-full mt-2 px-3 py-2 border border-[var(--color-gray-300)] rounded-md focus:outline-none focus:ring-[var(--color-primary-500)] focus:border-[var(--color-primary-500)] sm:text-sm"
                           placeholder="Your answer"

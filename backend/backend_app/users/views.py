@@ -9,7 +9,7 @@ from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 from backend_app.users.serializers import (LoginSerializer, LogoutSerializer, UserSerializer, SecretQuestionSerializer,
                                            UserRegistrationSerializer, PasswordResetRequestSerializer, VerifySecretAnswerSerializer,
-                                           SetNewPasswordSerializer, ChangePasswordSerializer)
+                                           SetNewPasswordSerializer, ChangePasswordSerializer, UserSecretAnswerSerailizer)
 
 from backend_app.models import SecretQuestion, UserSecretAnswer
 
@@ -20,6 +20,15 @@ class SecretQuestionListView(APIView):
         questions = SecretQuestion.objects.all()
         serializer = SecretQuestionSerializer(questions, many=True)
         return Response(serializer.data)
+    
+class GetSecretQuestion(APIView):
+
+    def get(self, request, username):
+        queryset = UserSecretAnswer.objects.filter(user__username=username)
+        if queryset.exists():
+            serializer = UserSecretAnswerSerailizer(queryset, many=True)
+            return Response(serializer.data)
+        return Response({'error':'User not found'},status=status.HTTP_404_NOT_FOUND)
 
 
 class UserRegistrationView(APIView):
@@ -72,47 +81,93 @@ class PasswordResetRequestView(APIView):
                 'username': username
             }, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
+
 class VerifySecretAnswerView(APIView):
-    def post(self, request):
-        serializer = VerifySecretAnswerSerializer(data=request.data)
-        if serializer.is_valid():
-            username = serializer.validated_data['username']
-            question_id = serializer.validated_data['question_id']
-            answer = serializer.validated_data['answer'].lower().strip()
+    def post(self, request, username):
+
+        # 1. Check if request data is a list
+        if not isinstance(request.data, list):
+            return Response(
+                {"error": "Please provide question-answer pairs as a list"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # 2. Find the user
+        try:
+            user = User.objects.get(username=username)
+            print(f"Found user: {user.username}")  # Debug
+        except User.DoesNotExist:
+            return Response(
+                {"error": "User not found"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        
+        # 3. Check each question-answer pair
+        wrong_answers = []
+        
+        for item in request.data:
+            question_id = item.get("question_id")
+            user_answer = item.get("answer", "").lower().strip()
             
+            print(f"Checking question ID: {question_id}")  # Debug
+            
+            # 3a. Check if question exists for this user
             try:
-                user = User.objects.get(username=username)
-                secret_answer = UserSecretAnswer.objects.get(
-                    user=user, 
-                    question_id=question_id
+                stored_answer = UserSecretAnswer.objects.get(
+                    user=user,
+                    id=question_id
                 )
-            except (User.DoesNotExist, UserSecretAnswer.DoesNotExist):
-                return Response({'error': 'Invalid question or user.'}, 
-                              status=status.HTTP_400_BAD_REQUEST)
-            
-            if secret_answer.answer == answer:
-                return Response({
-                    'message': 'Answer verified successfully.',
-                    'username': username,
-                    'verified': True
-                }, status=status.HTTP_200_OK)
-            return Response({'error': 'Incorrect answer.'}, 
-                          status=status.HTTP_400_BAD_REQUEST)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
+                print(f"Found stored answer: {stored_answer.answer}")  # Debug
+                
+                # 3b. Compare answers
+                if stored_answer.answer.lower() != user_answer:
+                    wrong_answers.append({
+                        "question_id": question_id,
+                        "message": "Incorrect answer"
+                    })
+                    
+            except UserSecretAnswer.DoesNotExist:
+                # Debug why question wasn't found
+                print(f"Question {question_id} not found for user {username}")
+                
+                # Check if question exists at all in the system
+                if not UserSecretAnswer.objects.filter(id=question_id).exists():
+                    print(f"Question ID {question_id} doesn't exist in system")
+                
+                wrong_answers.append({
+                    "question_id": question_id,
+                    "message": "Question not found for user"
+                })
+        
+        # 4. Return result
+        if not wrong_answers:
+            return Response({
+                "success": True,
+                "message": "All answers correct!"
+            }, status=status.HTTP_200_OK)
+        else:
+            return Response({
+                "success": False,
+                "message": "Some answers were wrong",
+                "wrong_answers": wrong_answers,
+                "user": username  # Added for debugging
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
 class SetNewPasswordView(APIView):
-    def post(self, request):
+    def post(self, request, username):
         serializer = SetNewPasswordSerializer(data=request.data)
         if serializer.is_valid():
-            username = serializer.validated_data['username']
             new_password = serializer.validated_data['new_password']
             
             try:
                 user = User.objects.get(username=username)
+                print('user:',user)
             except User.DoesNotExist:
                 return Response({'error': 'User with this username does not exist.'}, 
                               status=status.HTTP_400_BAD_REQUEST)
+            
+            if user.password == new_password:
+                return Response({'error': 'Password is already in use.'}, status=status.HTTP_400_BAD_REQUEST)
             
             user.set_password(new_password)
             user.save()
@@ -155,6 +210,7 @@ def login_view(request):
         else:
             return Response({"detail": "No active account found with the given credentials."}, status=status.HTTP_401_UNAUTHORIZED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 
 @api_view(['POST'])
