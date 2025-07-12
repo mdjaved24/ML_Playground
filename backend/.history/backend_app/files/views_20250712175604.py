@@ -392,7 +392,7 @@ class SaveModelView(APIView):
                     status=status.HTTP_500_INTERNAL_SERVER_ERROR
                 )
             
-        accuracy_val = 0.0  # Initialize with default
+        accuracy_val = 0.0  # ✅ Initialize with default
             # print('Config accuracy:',config.get('accuracy'))
             # accuracy = config.get('accuracy')
         print('Accuracy:',accuracy)
@@ -476,7 +476,7 @@ class SaveModelView(APIView):
 
     def get(self, request):
         try:
-            
+            # Prefetch related data to optimize queries
             models = SavedModel.objects.filter(
                 user=request.user, 
                 is_active=True

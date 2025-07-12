@@ -184,13 +184,14 @@ def safe_remove_outliers(df, cols):
         df = df[(df[col] >= lower_bound) & (df[col] <= upper_bound)]
     return df
     
+
 def load_model_and_predict(model_path, features, columns, encoder=None, scaler=None, target_encoder=None):
     try:
         print("\n=== PREDICTION DEBUG START ===")
         print(f"Input features: {features}")
         print(f"Expected columns: {columns}")
-
-        # Load model
+        
+        # Load model components
         model = joblib.load(model_path)
         print("Model loaded successfully")
 
@@ -200,98 +201,84 @@ def load_model_and_predict(model_path, features, columns, encoder=None, scaler=N
         if len(features) != len(columns):
             raise ValueError(f"Expected {len(columns)} features, got {len(features)}")
 
-        # Create DataFrame
+        # Create DataFrame with correct column names
         input_df = pd.DataFrame([features], columns=columns)
-        print("\n📄 Raw input DataFrame:")
+        print("\nRaw input DataFrame:")
         print(input_df)
-
+        
+        # Apply preprocessing
         processed_df = input_df.copy()
-
-        for col in processed_df.columns:
-            try:
-                processed_df[col] = pd.to_numeric(processed_df[col])
-            except:
-                pass
-
-        # Handle missing values
+        
+        # 1. Handle missing values
         for col in processed_df.select_dtypes(include=['float64', 'int64']):
             processed_df[col] = processed_df[col].fillna(processed_df[col].mean())
-
+        
         for col in processed_df.select_dtypes(include=['object']):
             processed_df[col] = processed_df[col].fillna(processed_df[col].mode()[0])
 
-        # Encoding categorical variables
+        # 2. Apply encoding if needed
         if encoder is not None:
-            print("Categorical columns before encoding:", processed_df.select_dtypes(include=['object']).columns.tolist())
-
-            if isinstance(encoder, dict):
+            print("\nBefore encoding:")
+            print(processed_df.select_dtypes(include=['object']).columns)
+            
+            if isinstance(encoder, dict):  # Multiple LabelEncoders
                 for col in processed_df.select_dtypes(include=['object']):
                     if col in encoder:
                         le = encoder[col]
                         processed_df[col] = processed_df[col].map(
                             lambda x: le.transform([x])[0] if x in le.classes_ else len(le.classes_)
                         )
-                        print(f"Encoded '{col}' using LabelEncoder")
-            else:
+            else:  # Single encoder
                 for col in processed_df.select_dtypes(include=['object']):
                     if col in columns:
                         processed_df[col] = encoder.transform(processed_df[[col]])
-                        print(f"Encoded '{col}' using shared encoder")
+            
+            print("After encoding:")
+            print(processed_df.head())
 
-        print("\n📊 DataFrame after encoding:")
-        print(processed_df.head())
-
-        # Scaling numerical features
+        # 3. Apply scaling if needed
         if scaler is not None:
             print("\nBefore scaling:")
             print(processed_df.select_dtypes(include=['float64', 'int64']).head())
-
-            if hasattr(scaler, 'feature_names_in_'):
-                numeric_cols = scaler.feature_names_in_ 
-            else:
-                numeric_cols = processed_df.select_dtypes(include=['float64', 'int64']).columns
-
-            scaled_array = scaler.transform(processed_df[numeric_cols])
-            processed_df[numeric_cols] = pd.DataFrame(scaled_array, columns=numeric_cols)
-
+            
+            numeric_cols = processed_df.select_dtypes(include=['float64', 'int64']).columns
+            processed_df[numeric_cols] = scaler.transform(processed_df[numeric_cols])
+            
             print("After scaling:")
             print(processed_df.head())
 
-        # Log dtype info
-        print("\nProcessed DataFrame types:")
-        print(processed_df.dtypes)
-
-        # Final features array
+        # Convert to numpy array and ensure correct shape
         final_features = processed_df.values
         if final_features.ndim == 1:
             final_features = final_features.reshape(1, -1)
         elif final_features.ndim == 2 and final_features.shape[0] == 1:
-            pass
+            pass  # Already correct shape
         else:
             raise ValueError(f"Unexpected features shape: {final_features.shape}")
 
         print("\nFinal features for prediction:")
         print(final_features)
 
-        # Predict
+        # Make prediction
         prediction = model.predict(final_features)
         print(f"\nRaw prediction: {prediction}")
 
-        # Inverse transform (for classification)
-        if target_encoder is not None:
+        # Inverse transform if target encoder exists
+        if target_encoder:
             prediction = target_encoder.inverse_transform(prediction)
-            print(f"Decoded prediction: {prediction}")
 
-        # Round float predictions if applicable
+        # Check if prediction is numeric (float) and round if so
         if isinstance(prediction, (list, np.ndarray)):
+            # Handle array-like predictions
             if np.issubdtype(np.array(prediction).dtype, np.floating):
                 prediction = np.round(prediction, 2)
         elif isinstance(prediction, float):
+            # Handle single float value
             prediction = round(prediction, 2)
 
         print("=== PREDICTION DEBUG END ===")
         return prediction
-
+        
     except Exception as e:
         print(f"\n=== PREDICTION ERROR ===")
         print(f"Error during prediction: {str(e)}")

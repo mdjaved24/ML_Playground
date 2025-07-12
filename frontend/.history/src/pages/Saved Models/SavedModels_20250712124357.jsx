@@ -193,7 +193,7 @@ const makePrediction = async () => {
     // Prepare inputs in correct order
     const inputValues = selectedModel.features.map(feature => {
       const featureName = typeof feature === 'string' ? feature : feature.name;
-      return predictionInputs[featureName]; // Convert to number
+      return predictionInputs[featureName] || 0; // Convert to number
     });
 
     // Get column names in correct order

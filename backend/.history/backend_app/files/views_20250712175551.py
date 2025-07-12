@@ -392,7 +392,7 @@ class SaveModelView(APIView):
                     status=status.HTTP_500_INTERNAL_SERVER_ERROR
                 )
             
-        accuracy_val = 0.0  # Initialize with default
+        accuracy_val = 0.0  # ✅ Initialize with default
             # print('Config accuracy:',config.get('accuracy'))
             # accuracy = config.get('accuracy')
         print('Accuracy:',accuracy)
@@ -476,7 +476,7 @@ class SaveModelView(APIView):
 
     def get(self, request):
         try:
-            
+            # Prefetch related data to optimize queries
             models = SavedModel.objects.filter(
                 user=request.user, 
                 is_active=True
@@ -642,9 +642,9 @@ class ModelDownloadView(APIView):
             print(saved_model.scaler_file)
             print(saved_model.target_encoder)
             
-            # Create filename using model name
+            # Create filename using model name (sanitized) and ID
             from django.utils.text import slugify
-            filename = f"{slugify(saved_model.name)}_{pk}.zip" 
+            filename = f"{slugify(saved_model.name)}_{pk}.zip"  # slugify handles special chars
             
             # Create in-memory zip
             zip_buffer = io.BytesIO()

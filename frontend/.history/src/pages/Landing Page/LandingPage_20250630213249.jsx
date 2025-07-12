@@ -23,7 +23,7 @@ function App() {
               <a href="#features" className="hover:text-[var(--color-secondary-300)] transition">Features</a>
               <a href="#how-it-works" className="hover:text-[var(--color-secondary-300)] transition">How it Works</a>
               <Link to='/login'><button className="btn-accent px-4 py-2 rounded-md transition glow-effect hover:cursor-pointer">
-                Login
+                Launch Playground
               </button></Link>
               <button className="btn-accent px-4 py-2 rounded-md transition glow-effect hover:cursor-pointer">
                 Sign up

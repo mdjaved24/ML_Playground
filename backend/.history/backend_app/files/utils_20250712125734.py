@@ -192,7 +192,7 @@ def load_model_and_predict(model_path, features, columns, encoder=None, scaler=N
 
         # Load model
         model = joblib.load(model_path)
-        print("Model loaded successfully")
+        print("✅ Model loaded successfully")
 
         # Validate input
         if columns is None:
@@ -207,11 +207,12 @@ def load_model_and_predict(model_path, features, columns, encoder=None, scaler=N
 
         processed_df = input_df.copy()
 
+        # ✅ Convert numerics that may have been passed as strings
         for col in processed_df.columns:
             try:
                 processed_df[col] = pd.to_numeric(processed_df[col])
             except:
-                pass
+                pass  # if conversion fails, it's probably categorical
 
         # Handle missing values
         for col in processed_df.select_dtypes(include=['float64', 'int64']):
@@ -220,11 +221,12 @@ def load_model_and_predict(model_path, features, columns, encoder=None, scaler=N
         for col in processed_df.select_dtypes(include=['object']):
             processed_df[col] = processed_df[col].fillna(processed_df[col].mode()[0])
 
-        # Encoding categorical variables
+        # ✅ Encoding categorical variables
         if encoder is not None:
+            print("\n🎯 Encoding categorical features...")
             print("Categorical columns before encoding:", processed_df.select_dtypes(include=['object']).columns.tolist())
 
-            if isinstance(encoder, dict):
+            if isinstance(encoder, dict):  # LabelEncoder per column
                 for col in processed_df.select_dtypes(include=['object']):
                     if col in encoder:
                         le = encoder[col]
@@ -241,13 +243,13 @@ def load_model_and_predict(model_path, features, columns, encoder=None, scaler=N
         print("\n📊 DataFrame after encoding:")
         print(processed_df.head())
 
-        # Scaling numerical features
+        # ✅ Scaling numerical features
         if scaler is not None:
             print("\nBefore scaling:")
             print(processed_df.select_dtypes(include=['float64', 'int64']).head())
 
             if hasattr(scaler, 'feature_names_in_'):
-                numeric_cols = scaler.feature_names_in_ 
+                numeric_cols = scaler.feature_names_in_  # safe and correct column order
             else:
                 numeric_cols = processed_df.select_dtypes(include=['float64', 'int64']).columns
 
@@ -258,7 +260,7 @@ def load_model_and_predict(model_path, features, columns, encoder=None, scaler=N
             print(processed_df.head())
 
         # Log dtype info
-        print("\nProcessed DataFrame types:")
+        print("\n📌 Processed DataFrame types:")
         print(processed_df.dtypes)
 
         # Final features array
@@ -270,12 +272,12 @@ def load_model_and_predict(model_path, features, columns, encoder=None, scaler=N
         else:
             raise ValueError(f"Unexpected features shape: {final_features.shape}")
 
-        print("\nFinal features for prediction:")
+        print("\n✅ Final features for prediction:")
         print(final_features)
 
         # Predict
         prediction = model.predict(final_features)
-        print(f"\nRaw prediction: {prediction}")
+        print(f"\n🎯 Raw prediction: {prediction}")
 
         # Inverse transform (for classification)
         if target_encoder is not None:

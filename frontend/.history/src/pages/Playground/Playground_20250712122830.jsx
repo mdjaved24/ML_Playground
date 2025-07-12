@@ -797,10 +797,10 @@ const handleSubmit = async (e) => {
     }
 
     // Handle confusion matrix if exists
-    if (!isRegression && accuracyData.confusion_matrix) {
+    if (!isRegression && response.data.confusion_matrix) {
       setConfusionMatrix({
-        matrix: accuracyData.confusion_matrix.matrix,
-        labels: accuracyData.confusion_matrix.labels
+        matrix: response.data.confusion_matrix.matrix,
+        labels: response.data.confusion_matrix.labels
       });
     }
 
