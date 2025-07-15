@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 8,
+            "activePatchIndex": 9,
             "patches": [
                 {
                     "date": 1752222209052,
@@ -40,6 +40,10 @@
                 {
                     "date": 1752223346778,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -826,9 +826,8 @@\n     //   problem_type: targetType === 'both' ? \r\n     //     (formData.model_type in modelOptions.classification ? 'classification' : 'regression') : \r\n     //     targetType\r\n     // };\r\n-\r\n     const payload = {\r\n       name: results.name,\r\n       model_cache_key: results.model_cache_key,\r\n       encoder_cache_key: results.encoder_cache_key,\r\n@@ -838,8 +837,10 @@\n       accuracy: results.accuracy,\r\n       config: results.config // Stringify the config object\r\n     };\r\n \r\n+    console.log('Saved payload',payload);\r\n+\r\n     const response = await axios.post(`${API_URL}/file/save/`, payload, {\r\n       headers: {\r\n         'Content-Type': 'application/json', // Correct content type\r\n         'Authorization': `Bearer ${accessToken}`,\r\n"
+                },
+                {
+                    "date": 1752558991607,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -796,12 +796,12 @@\n       });\r\n     }\r\n \r\n     // Handle confusion matrix if exists\r\n-    if (!isRegression && response.data.confusion_matrix) {\r\n+    if (!isRegression && accuracyData.confusion_matrix) {\r\n       setConfusionMatrix({\r\n-        matrix: response.data.confusion_matrix.matrix,\r\n-        labels: response.data.confusion_matrix.labels\r\n+        matrix: accuracyData.confusion_matrix.matrix,\r\n+        labels: accuracyData.confusion_matrix.labels\r\n       });\r\n     }\r\n \r\n   } catch (err) {\r\n@@ -1060,9 +1060,9 @@\n             \r\n             <div className=\"space-y-4\">\r\n               <div className=\"flex flex-col space-y-2\">\r\n                 <label className=\"block text-sm font-medium text-[var(--color-gray-700)] mb-1\">\r\n-                  Dataset Name\r\n+                  Project Name\r\n                 </label>\r\n                 <input\r\n                   type=\"text\"\r\n                   value={fileDisplayName}\r\n"
                 }
             ],
             "date": 1752222209052,

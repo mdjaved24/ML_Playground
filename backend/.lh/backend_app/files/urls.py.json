@@ -1,0 +1,18 @@
+{
+    "sourceFile": "backend_app/files/urls.py",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1752561827230,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1752561827230,
+            "name": "Commit-0",
+            "content": "from django.urls import path\r\n\r\nfrom backend_app.files.views import UploadFileView, ColumnsView, ModelTrainigView, SaveModelView,SavedModelDetailView, PredictionView, get_all_files, get_all_config, get_user_config, get_user_files, DatasetPreviewAPI, UserTrainedModelsView, ModelFeaturesView, ModelDownloadView, DashboardStats\r\n\r\n\r\nurlpatterns = [\r\n    path('upload/', UploadFileView.as_view(), name='upload-file'),  \r\n    path('dataset-preview/', DatasetPreviewAPI.as_view(), name='dataset-preview'),  \r\n    path('columns/', ColumnsView.as_view(), name='upload-file-columns'),  \r\n    path('train/', ModelTrainigView.as_view(), name='train-model'),  \r\n    path('save/', SaveModelView.as_view(), name='save-model'),  \r\n    path('saved-model/<int:pk>/', SavedModelDetailView.as_view(), name='save-model-detail'), \r\n    path('download-model/<int:pk>/', ModelDownloadView.as_view(), name='download-model'), \r\n    path('predict/<int:pk>/', PredictionView.as_view(), name='predict'),  \r\n    path('model-features/<int:pk>/', ModelFeaturesView.as_view(), name='model-features'),  \r\n    path('getfiles/', get_all_files, name='get-file'),  \r\n    path('getconfigs/', get_all_config, name='get-configs'),  \r\n    path('getuserfiles/<int:pk>/', get_user_files, name='get-user-file'),  \r\n    path('getuserconfigs/<int:pk>/', get_user_config, name='get-user-configs'),  \r\n    path('getusermodels/', UserTrainedModelsView.as_view(), name='get-user-models'),  \r\n    path('dashboard-stats/', DashboardStats.as_view(), name='dashboard-stats'),  \r\n]"
+        }
+    ]
+}

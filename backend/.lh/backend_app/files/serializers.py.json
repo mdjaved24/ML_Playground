@@ -1,0 +1,22 @@
+{
+    "sourceFile": "backend_app/files/serializers.py",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 1,
+            "patches": [
+                {
+                    "date": 1752560334781,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1752560349962,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -68,8 +68,9 @@\n             'config',\r\n             'features',\r\n             'feature_types',\r\n             'categorical_values',\r\n+            'training_time',\r\n             'target_column',\r\n             'problem_type',\r\n             'model_file',\r\n             'encoder_file',\r\n"
+                }
+            ],
+            "date": 1752560334781,
+            "name": "Commit-0",
+            "content": "from rest_framework import serializers\r\nimport os\r\n\r\n# from django.contrib.auth.models import User\r\n\r\nfrom backend_app.models import UploadedDataset, ModelConfig, SavedModel\r\n\r\nclass UploadFileSerializer(serializers.ModelSerializer):\r\n\r\n    class Meta:\r\n        model = UploadedDataset\r\n        fields = '__all__'\r\n\r\n    def create(self, validated_data):\r\n        \"\"\"\r\n        Validate the file extension after the file is uploaded.\r\n        \"\"\"\r\n        # Get the file path from the validated data\r\n        file_path = validated_data.get('file_path')\r\n\r\n        # Extract the file extension from the file path\r\n        file_name = file_path.name  # Get the file name (e.g., \"diamonds_NTCVX9F.csv.zip\")\r\n        extension = file_name.split('.')[-1].lower()  # Get the file extension in lowercase\r\n\r\n        # List of valid extensions\r\n        valid_extensions = ['csv', 'xls', 'xlsx']\r\n\r\n        # Check if the file extension is valid\r\n        if extension not in valid_extensions:\r\n            raise serializers.ValidationError(\"Only CSV, XLS, and XLSX files are allowed.\")\r\n\r\n        # Save the UploadedDataset instance\r\n        return UploadedDataset.objects.create(**validated_data)\r\n\r\nclass ModelConfigSerializer(serializers.ModelSerializer):\r\n    dataset = serializers.PrimaryKeyRelatedField(queryset=UploadedDataset.objects.all())\r\n    class Meta:\r\n        model = ModelConfig\r\n        fields = '__all__'\r\n        extra_kwargs = {\r\n            'accuracy': {'required': False},   # Will be set after training\r\n            'dataset': {'required': True, 'write_only': True},\r\n            'user': {'required': False}  # Will be set from request\r\n        }\r\n        \r\nclass DatasetPreviewSerializer(serializers.Serializer):\r\n    dataset = serializers.FileField()\r\n    row_count = serializers.IntegerField()\r\n\r\nclass SaveModelSerializer(serializers.ModelSerializer):\r\n    # dataset_name = serializers.CharField(source='dataset.name', read_only=True)\r\n    features = serializers.JSONField(source='config.features', read_only=True)\r\n    feature_types = serializers.JSONField(source='config.feature_types', read_only=True)\r\n    categorical_values = serializers.JSONField(source='config.categorical_values', read_only=True)\r\n    target_column = serializers.CharField(source='config.target_column', read_only=True)\r\n    training_time = serializers.CharField(source='config.training_time', read_only=True)\r\n    problem_type = serializers.CharField(source='config.problem_type', read_only=True)\r\n\r\n    class Meta:\r\n        model = SavedModel\r\n        fields = [\r\n            'id',\r\n            'user',\r\n            'dataset',\r\n            'name',\r\n            'algorithm',\r\n            'accuracy',\r\n            'config',\r\n            'features',\r\n            'feature_types',\r\n            'categorical_values',\r\n            'target_column',\r\n            'problem_type',\r\n            'model_file',\r\n            'encoder_file',\r\n            'scaler_file',\r\n            'target_encoder',\r\n            'created_at',\r\n            'updated_at',\r\n            'is_active'\r\n        ]\r\n\r\n\r\nclass PredictionSerializer(serializers.Serializer):\r\n    inputs = serializers.DictField(\r\n        child=serializers.CharField(allow_blank=True),\r\n        allow_empty=False\r\n    )\r\n    predicted_output = serializers.CharField(max_length=255, read_only=True)"
+        }
+    ]
+}

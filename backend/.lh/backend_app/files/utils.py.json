@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 2,
+            "activePatchIndex": 5,
             "patches": [
                 {
                     "date": 1752216713283,
@@ -16,6 +16,18 @@
                 {
                     "date": 1752323113026,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -296,5 +296,5 @@\n         print(f\"\\n=== PREDICTION ERROR ===\")\r\n         print(f\"Error during prediction: {str(e)}\")\r\n         traceback.print_exc()\r\n         print(\"=== PREDICTION ERROR ===\")\r\n-        raise ValueError(f\"Prediction failed: {str(e)}\")\n\\ No newline at end of file\n+        raise ValueError(f\"Prediction failed: {str(e)}\")\r\n"
+                },
+                {
+                    "date": 1752558639423,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -2,8 +2,9 @@\n import numpy as np\r\n from sklearn import preprocessing, model_selection, linear_model, neighbors, tree, ensemble, svm, metrics\r\n import joblib\r\n import traceback\r\n+import time\r\n \r\n \r\n def read_file(file):\r\n     import os\r\n@@ -34,8 +35,10 @@\n                 categorical_values[col] = [x if pd.notna(x) else None for x in df[col].unique()]\r\n             else:\r\n                 feature_types[col] = 'numerical'\r\n \r\n+        start_time = time.time()\r\n+\r\n         # Initialize preprocessing objects\r\n         feature_encoder = None\r\n         if config['encoder'] == 'LabelEncoder':\r\n             feature_encoder = preprocessing.LabelEncoder()\r\n@@ -116,13 +119,21 @@\n             'SVC': svm.SVC,\r\n             'Ridge': linear_model.Ridge\r\n         }\r\n \r\n+        \r\n+\r\n         model = model_map[config['model_type']](**config.get('parameters', {}))\r\n         model.fit(X_train, y_train)\r\n \r\n         # Evaluation\r\n         predictions = model.predict(X_test)\r\n+\r\n+        end_time = time.time()\r\n+\r\n+        training_time = end_time - start_time\r\n+        print(\"\\n====================================\\nTraining time\",training_time)\r\n+\r\n         accuracy = evaluate_model(y_test, predictions, config['problem_type'], features, model)\r\n \r\n         return ( feature_types, categorical_values, model, feature_encoder, scaler, target_encoder, accuracy )\r\n \r\n"
+                },
+                {
+                    "date": 1752558657343,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -129,9 +129,9 @@\n         predictions = model.predict(X_test)\r\n \r\n         end_time = time.time()\r\n \r\n-        training_time = end_time - start_time\r\n+        training_time = round(end_time - start_time,2)\r\n         print(\"\\n====================================\\nTraining time\",training_time)\r\n \r\n         accuracy = evaluate_model(y_test, predictions, config['problem_type'], features, model)\r\n \r\n"
+                },
+                {
+                    "date": 1752559304079,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -134,9 +134,9 @@\n         print(\"\\n====================================\\nTraining time\",training_time)\r\n \r\n         accuracy = evaluate_model(y_test, predictions, config['problem_type'], features, model)\r\n \r\n-        return ( feature_types, categorical_values, model, feature_encoder, scaler, target_encoder, accuracy )\r\n+        return ( feature_types, categorical_values, training_time, model, feature_encoder, scaler, target_encoder, accuracy )\r\n \r\n     except Exception as e:\r\n         traceback.print_exc()\r\n         raise ValueError(f\"Model training failed: {str(e)}\")\r\n"
                 }
             ],
             "date": 1752216713283,
