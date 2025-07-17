@@ -1,0 +1,18 @@
+{
+    "sourceFile": "src/App.jsx",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1752746909409,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1752746909409,
+            "name": "Commit-0",
+            "content": "import { useState } from 'react'\r\nimport reactLogo from './assets/react.svg'\r\nimport viteLogo from '/vite.svg'\r\nimport './App.css'\r\nimport { BrowserRouter as Router, Routes, Route } from 'react-router-dom';\r\nimport LandingPage from './pages/Landing Page/LandingPage';\r\nimport Login from './pages/Auth/Login';\r\nimport Signup from './pages/Auth/Signup';\r\nimport ForgotPassword from './pages/Auth/ForgotPassword';\r\n\r\nimport ProtectedRoute from './ProtectedRoute';\r\nimport Homepage from './pages/Homepage/Homepage';\r\nimport LearnPage from './pages/Learn/LearnPage';\r\nimport Playground from './pages/Playground/Playground';\r\nimport Dashboard from './pages/Dashboard/Dashboard';\r\nimport SavedModels from './pages/Saved Models/SavedModels';\r\nimport ProfilePage from './pages/Profile/ProfilePage';\r\n\r\nfunction App() {\r\n  return (\r\n    <Router>\r\n      <Routes>\r\n        <Route path='/' element={<LandingPage />} />\r\n        <Route path='/login' element={<Login />} />\r\n        <Route path='/signup' element={<Signup />} />\r\n        <Route path='/forgot-password' element={<ForgotPassword />} />\r\n\r\n        {/* Protected Route  */}\r\n        <Route element={<ProtectedRoute />}>\r\n          <Route path='/home' element={<Homepage/>}></Route>\r\n          <Route path='/learn' element={<LearnPage/>}></Route>\r\n          <Route path='/playground' element={<Playground />}></Route>\r\n          <Route path='/models' element={<SavedModels />}></Route>\r\n          <Route path='/profile' element={<ProfilePage />}></Route>\r\n          <Route path='/dashboard' element={<Dashboard/>}></Route>\r\n        </Route>\r\n\r\n      </Routes>\r\n    </Router>\r\n  );\r\n}\r\n\r\nexport default App;\r\n"
+        }
+    ]
+}
