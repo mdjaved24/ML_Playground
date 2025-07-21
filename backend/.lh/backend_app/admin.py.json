@@ -1,0 +1,22 @@
+{
+    "sourceFile": "backend_app/admin.py",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 1,
+            "patches": [
+                {
+                    "date": 1753065389859,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1753065600350,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,11 +1,11 @@\n from django.contrib import admin\r\n \r\n-from backend_app.models import UploadedDataset, ModelConfig, SavedModel\r\n+from backend_app.models import UploadedDataset, ModelConfig, SavedModel, SecretQuestion, UserSecretAnswer\r\n # Register your models here.\r\n \r\n admin.site.register(UploadedDataset)\r\n admin.site.register(ModelConfig)\r\n admin.site.register(SavedModel)\r\n-# admin.site.register(SecretQuestion)\r\n-# admin.site.register(UserSecretAnswer)\r\n+admin.site.register(SecretQuestion)\r\n+admin.site.register(UserSecretAnswer)\r\n \r\n"
+                }
+            ],
+            "date": 1753065389859,
+            "name": "Commit-0",
+            "content": "from django.contrib import admin\r\n\r\nfrom backend_app.models import UploadedDataset, ModelConfig, SavedModel\r\n# Register your models here.\r\n\r\nadmin.site.register(UploadedDataset)\r\nadmin.site.register(ModelConfig)\r\nadmin.site.register(SavedModel)\r\n# admin.site.register(SecretQuestion)\r\n# admin.site.register(UserSecretAnswer)\r\n\r\n"
+        }
+    ]
+}
