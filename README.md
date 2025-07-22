@@ -6,7 +6,6 @@
 
 <p align="center">
   <a href="https://your-deployment-link.com" target="_blank">🔗 Live Demo</a><br>
-  <em>(Replace this with your actual deployment URL)</em>
 </p>
 
 <hr />
