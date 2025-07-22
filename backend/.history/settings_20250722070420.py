@@ -62,8 +62,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-# CORS (optional - for API + frontend interaction)
-CORS_ALLOWED_ORIGINS = config('CORS_ALLOWED_ORIGINS', default='').split(',')
+CORS_ALLOW_ALL_ORIGINS = True
 
 ROOT_URLCONF = 'backend.urls'
 
@@ -149,9 +148,9 @@ REST_FRAMEWORK = {
     ],
 
     # To turn off browsable API
-    'DEFAULT_RENDERER_CLASSES': (
-        'rest_framework.renderers.JSONRenderer',
-    ),
+    # 'DEFAULT_RENDERER_CLASSES': (
+    #     'rest_framework.renderers.JSONRenderer',
+    # ),
 
 }
 
@@ -159,17 +158,13 @@ REST_FRAMEWORK = {
 from datetime import timedelta
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),  # 30 minutes access
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),    # 7 days refresh
-    'ROTATE_REFRESH_TOKENS': True,                  # Returns new refresh token
-    'BLACKLIST_AFTER_ROTATION': True,               # Invalidate old tokens
-    'UPDATE_LAST_LOGIN': True,                      # Track user activity
-    
-    # Cookie options if using HTTP-only cookies
-    'AUTH_COOKIE_SECURE': True,
-    'AUTH_COOKIE_HTTP_ONLY': True,
-    'AUTH_COOKIE_SAMESITE': 'Lax',
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),  # Set Access Token expiry to 30 minutes
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),     # Set Refresh Token expiry to 7 days
+    'ROTATE_REFRESH_TOKENS': True,  # Generates a new refresh token each time it's used
+    'BLACKLIST_AFTER_ROTATION': True,  # Prevents reuse of old refresh tokens
+    'AUTH_HEADER_TYPES': ('Bearer',),
 }
+
 
 CACHES = {
     "default": {
@@ -177,3 +172,6 @@ CACHES = {
         "LOCATION": "cache_table",  # Name of the cache table
     }
 }
+#  session storage
+# SESSION_ENGINE = "django.contrib.sessions.backends.file"  # File-based session storage
+# SESSION_FILE_PATH = "backend_app\sessions"  # Path to store session files

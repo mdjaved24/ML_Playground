@@ -9,7 +9,6 @@ https://docs.djangoproject.com/en/5.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
-import os
 from decouple import config
 import dj_database_url
 from pathlib import Path
@@ -23,13 +22,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = config('SECRET_KEY', default='unsafe-secret-key')
+SECRET_KEY = 'django-insecure-!^c$*yuyaoy8kt4b7f=pl11935amat=rkud57kl@grkd&5$%1v'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = config('DEBUG', default=False, cast=bool)
+DEBUG = True
 
-# Allowed hosts (comma-separated in .env or Render)
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='127.0.0.1').split(',')
+ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -52,7 +50,6 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # Serve static files
     'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -62,8 +59,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-# CORS (optional - for API + frontend interaction)
-CORS_ALLOWED_ORIGINS = config('CORS_ALLOWED_ORIGINS', default='').split(',')
+CORS_ALLOW_ALL_ORIGINS = True
 
 ROOT_URLCONF = 'backend.urls'
 
@@ -89,9 +85,15 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-# Database
 DATABASES = {
-    'default': dj_database_url.config(default=config('DATABASE_URL'))
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'MLPlayground_db',
+        'USER': 'postgres',
+        'PASSWORD': 'root',
+        'HOST': 'localhost',
+        'PORT': '5432',
+    }
 }
 
 
@@ -149,9 +151,9 @@ REST_FRAMEWORK = {
     ],
 
     # To turn off browsable API
-    'DEFAULT_RENDERER_CLASSES': (
-        'rest_framework.renderers.JSONRenderer',
-    ),
+    # 'DEFAULT_RENDERER_CLASSES': (
+    #     'rest_framework.renderers.JSONRenderer',
+    # ),
 
 }
 
@@ -159,17 +161,13 @@ REST_FRAMEWORK = {
 from datetime import timedelta
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),  # 30 minutes access
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),    # 7 days refresh
-    'ROTATE_REFRESH_TOKENS': True,                  # Returns new refresh token
-    'BLACKLIST_AFTER_ROTATION': True,               # Invalidate old tokens
-    'UPDATE_LAST_LOGIN': True,                      # Track user activity
-    
-    # Cookie options if using HTTP-only cookies
-    'AUTH_COOKIE_SECURE': True,
-    'AUTH_COOKIE_HTTP_ONLY': True,
-    'AUTH_COOKIE_SAMESITE': 'Lax',
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),  # Set Access Token expiry to 30 minutes
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),     # Set Refresh Token expiry to 7 days
+    'ROTATE_REFRESH_TOKENS': True,  # Generates a new refresh token each time it's used
+    'BLACKLIST_AFTER_ROTATION': True,  # Prevents reuse of old refresh tokens
+    'AUTH_HEADER_TYPES': ('Bearer',),
 }
+
 
 CACHES = {
     "default": {
@@ -177,3 +175,6 @@ CACHES = {
         "LOCATION": "cache_table",  # Name of the cache table
     }
 }
+#  session storage
+# SESSION_ENGINE = "django.contrib.sessions.backends.file"  # File-based session storage
+# SESSION_FILE_PATH = "backend_app\sessions"  # Path to store session files
