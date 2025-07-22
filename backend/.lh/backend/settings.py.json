@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 4,
+            "activePatchIndex": 5,
             "patches": [
                 {
                     "date": 1753065692403,
@@ -24,6 +24,10 @@
                 {
                     "date": 1753155325956,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -127,11 +127,11 @@\n \r\n \r\n # Static files (CSS, JavaScript, Images)\r\n # https://docs.djangoproject.com/en/5.1/howto/static-files/\r\n+STATIC_URL = '/static/'\r\n+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')\r\n \r\n-STATIC_URL = 'static/'\r\n-\r\n # Default primary key field type\r\n # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field\r\n \r\n DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'\r\n"
+                },
+                {
+                    "date": 1753155637979,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -62,9 +62,12 @@\n     'django.middleware.clickjacking.XFrameOptionsMiddleware',\r\n ]\r\n \r\n # CORS (optional - for API + frontend interaction)\r\n-CORS_ALLOWED_ORIGINS = config('CORS_ALLOWED_ORIGINS', default='').split(',')\r\n+CORS_ALLOWED_ORIGINS = [\r\n+    'https://mlplayground-frontend.onrender.com',  # your frontend\r\n+    'http://localhost:3000',                       # for local testing\r\n+]\r\n \r\n ROOT_URLCONF = 'backend.urls'\r\n \r\n TEMPLATES = [\r\n@@ -127,8 +130,9 @@\n \r\n \r\n # Static files (CSS, JavaScript, Images)\r\n # https://docs.djangoproject.com/en/5.1/howto/static-files/\r\n+\r\n STATIC_URL = '/static/'\r\n STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')\r\n \r\n # Default primary key field type\r\n"
                 }
             ],
             "date": 1753065692403,
