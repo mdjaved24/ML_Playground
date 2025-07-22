@@ -1,0 +1,26 @@
+{
+    "sourceFile": "backend_app/apps.py",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 2,
+            "patches": [
+                {
+                    "date": 1753154261857,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1753154309537,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -9,13 +9,13 @@\n \r\n     def ready(self):\r\n         try:\r\n             User = get_user_model()\r\n-            if not User.objects.filter(username='admin').exists():\r\n+            if not User.objects.filter(username='Javed').exists():\r\n                 User.objects.create_superuser(\r\n-                    username='admin',\r\n-                    email='admin@example.com',\r\n-                    password='admin123'\r\n+                    username='Javed',\r\n+                    email='mdjav077@gmail.com',\r\n+                    password='Javed24@'\r\n                 )\r\n                 print(\"✅ Superuser created!\")\r\n         except OperationalError as e:\r\n             logging.warning(f\"Skipping superuser creation: {e}\")\r\n"
+                },
+                {
+                    "date": 1753154498140,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,21 +1,21 @@\n+import os\r\n from django.apps import AppConfig\r\n from django.contrib.auth import get_user_model\r\n-from django.db.utils import OperationalError\r\n-import logging\r\n \r\n class BackendAppConfig(AppConfig):\r\n     default_auto_field = 'django.db.models.BigAutoField'\r\n     name = 'backend_app'\r\n \r\n     def ready(self):\r\n+        from django.db.utils import OperationalError\r\n         try:\r\n             User = get_user_model()\r\n-            if not User.objects.filter(username='Javed').exists():\r\n-                User.objects.create_superuser(\r\n-                    username='Javed',\r\n-                    email='mdjav077@gmail.com',\r\n-                    password='Javed24@'\r\n-                )\r\n-                print(\"✅ Superuser created!\")\r\n-        except OperationalError as e:\r\n-            logging.warning(f\"Skipping superuser creation: {e}\")\r\n+            username = os.getenv('DJANGO_SUPERUSER_USERNAME')\r\n+            email = os.getenv('DJANGO_SUPERUSER_EMAIL')\r\n+            password = os.getenv('DJANGO_SUPERUSER_PASSWORD')\r\n+\r\n+            if username and email and password:\r\n+                if not User.objects.filter(username=username).exists():\r\n+                    User.objects.create_superuser(username=username, email=email, password=password)\r\n+        except OperationalError:\r\n+            pass  # Prevents errors during migrations\n\\ No newline at end of file\n"
+                }
+            ],
+            "date": 1753154261857,
+            "name": "Commit-0",
+            "content": "from django.apps import AppConfig\r\nfrom django.contrib.auth import get_user_model\r\nfrom django.db.utils import OperationalError\r\nimport logging\r\n\r\nclass BackendAppConfig(AppConfig):\r\n    default_auto_field = 'django.db.models.BigAutoField'\r\n    name = 'backend_app'\r\n\r\n    def ready(self):\r\n        try:\r\n            User = get_user_model()\r\n            if not User.objects.filter(username='admin').exists():\r\n                User.objects.create_superuser(\r\n                    username='admin',\r\n                    email='admin@example.com',\r\n                    password='admin123'\r\n                )\r\n                print(\"✅ Superuser created!\")\r\n        except OperationalError as e:\r\n            logging.warning(f\"Skipping superuser creation: {e}\")\r\n"
+        }
+    ]
+}

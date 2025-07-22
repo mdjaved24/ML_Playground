@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 7,
+            "activePatchIndex": 9,
             "patches": [
                 {
                     "date": 1753065679685,
@@ -36,6 +36,14 @@
                 {
                     "date": 1753148144498,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -158,16 +158,20 @@\n \r\n from datetime import timedelta\r\n \r\n SIMPLE_JWT = {\r\n-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),  # Set Access Token expiry to 30 minutes\r\n-    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),     # Set Refresh Token expiry to 7 days\r\n-    'ROTATE_REFRESH_TOKENS': True,  # Generates a new refresh token each time it's used\r\n-    'BLACKLIST_AFTER_ROTATION': True,  # Prevents reuse of old refresh tokens\r\n-    'AUTH_HEADER_TYPES': ('Bearer',),\r\n+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),  # 30 minutes access\r\n+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),    # 7 days refresh\r\n+    'ROTATE_REFRESH_TOKENS': True,                  # Returns new refresh token\r\n+    'BLACKLIST_AFTER_ROTATION': True,               # Invalidate old tokens\r\n+    'UPDATE_LAST_LOGIN': True,                      # Track user activity\r\n+    \r\n+    # Cookie options if using HTTP-only cookies\r\n+    'AUTH_COOKIE_SECURE': True,\r\n+    'AUTH_COOKIE_HTTP_ONLY': True,\r\n+    'AUTH_COOKIE_SAMESITE': 'Lax',\r\n }\r\n \r\n-\r\n CACHES = {\r\n     \"default\": {\r\n         \"BACKEND\": \"django.core.cache.backends.db.DatabaseCache\",\r\n         \"LOCATION\": \"cache_table\",  # Name of the cache table\r\n"
+                },
+                {
+                    "date": 1753155303867,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -140,8 +140,11 @@\n \r\n MEDIA_URL = '/media/'  # URL prefix for media files\r\n MEDIA_ROOT = os.path.join(BASE_DIR, 'media')  # Directory where uploaded files are stored\r\n \r\n+STATIC_URL = '/static/'\r\n+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')\r\n+\r\n REST_FRAMEWORK = {\r\n \r\n     # AUTHENTICATION-\r\n     'DEFAULT_AUTHENTICATION_CLASSES': [\r\n"
+                },
+                {
+                    "date": 1753155310059,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -128,9 +128,8 @@\n \r\n # Static files (CSS, JavaScript, Images)\r\n # https://docs.djangoproject.com/en/5.1/howto/static-files/\r\n \r\n-STATIC_URL = 'static/'\r\n \r\n # Default primary key field type\r\n # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field\r\n \r\n"
                 }
             ],
             "date": 1753065679685,
