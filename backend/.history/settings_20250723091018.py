@@ -81,18 +81,6 @@ CORS_ALLOW_HEADERS = [
     'origin',
     'user-agent',
 ]
-
-# Required for preflight requests
-CORS_ALLOW_METHODS = [
-    'DELETE',
-    'GET',
-    'OPTIONS',
-    'PATCH',
-    'POST',
-    'PUT',
-]
-
-
 ROOT_URLCONF = 'backend.urls'
 
 TEMPLATES = [
