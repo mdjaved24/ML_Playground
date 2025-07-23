@@ -11,7 +11,7 @@ function Login() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
-  useEffect(() => {
+  const useEffect(() => {
     document.title = 'Login';
   }, [])
   

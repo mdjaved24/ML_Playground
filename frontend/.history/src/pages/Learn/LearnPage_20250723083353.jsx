@@ -6,7 +6,7 @@ import Footer from '../../components/Footer';
 const LearnPage = () => {
 
   useEffect(() => {
-    document.title = 'Learn';
+    document.title = 'Login';
   }, [])
 
   const [expandedSections, setExpandedSections] = useState({

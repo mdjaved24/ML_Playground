@@ -1,10 +1,10 @@
 // src/App.jsx
-import React, { useEffect } from 'react';
+import React from 'react';
 import '../../styles/colors.css';
 import { Link } from 'react-router-dom';
 
 
-function LandingPage() {
+function Landing() {
   useEffect(() => {
     document.title = 'Welcome';
   }, [])
@@ -296,4 +296,4 @@ function LandingPage() {
   );
 }
 
-export default LandingPage;
+export default Landing;

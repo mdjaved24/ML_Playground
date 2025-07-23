@@ -1,14 +1,14 @@
 // src/App.jsx
-import React, { useEffect } from 'react';
+import React from 'react';
 import '../../styles/colors.css';
 import { Link } from 'react-router-dom';
 
 
-function LandingPage() {
+function App() {
   useEffect(() => {
-    document.title = 'Welcome';
+    document.title = 'Login';
   }, [])
-
+  
   return (
     <div className="min-h-screen flex flex-col overflow-x-hidden">
       {/* Navigation */}
@@ -296,4 +296,4 @@ function LandingPage() {
   );
 }
 
-export default LandingPage;
+export default App;
