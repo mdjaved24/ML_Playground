@@ -69,7 +69,7 @@ class SavedModel(models.Model):
     model_file = models.FileField(upload_to='saved_models/')
     encoder_file = models.FileField(upload_to='saved_encoders/', null=True, blank=True)
     scaler_file = models.FileField(upload_to='saved_scalers/', null=True, blank=True)
-    target_encoder = models.FileField(upload_to='saved_target_encoders/', null=True, blank=True)
+    target_encoder = models.FileField(upload_to='saved_scalers/', null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     is_active = models.BooleanField(default=True)

@@ -728,7 +728,7 @@ const Playground = () => {
               err.message || 
               'Error training model');
       console.log(error);
-
+      
       toast.error(error);
     } finally {
       setIsLoading(false);
@@ -759,7 +759,6 @@ const Playground = () => {
       toast.success('Model saved successfully');
     } catch (err) {
       setError(err.response?.data?.error || err.message || 'Error saving model');
-      console.log(error);
       toast.error(err.response?.data?.error || 'Error saving model');
     }
   };
