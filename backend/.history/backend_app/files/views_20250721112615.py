@@ -185,14 +185,6 @@ class ModelTrainigView(APIView):
             dataset = request.FILES['dataset']
             name = request.data.get('name')
 
-            lst = name.split()
-            lst1 = []
-            for i in lst:
-                i = i.capitalize()
-                lst1.append(i)
-                
-            name = ' '.join(lst1)
-
             # 2. Validate config exists and is valid JSON
             if 'config' not in request.data:
                 return Response({"error": "No config provided"}, status=400)
@@ -365,16 +357,7 @@ class SaveModelView(APIView):
 
         config = request.data.get('config')
         dataset = request.data.get('dataset')
-
         name = request.data.get('name')
-        lst = name.split()
-        lst1 = []
-        for i in lst:
-            i = i.capitalize()
-            lst1.append(i)
-            
-        save_name = ' '.join(lst1)
-
         accuracy = request.data.get('accuracy')
 
         try:
@@ -507,7 +490,7 @@ class SaveModelView(APIView):
 
         # Prepare data for serializer
         data = {
-            "name": save_name,
+            "name": name,
             "user": request.user.id,
             "dataset": dataset,
             "algorithm": config_obj.model_type,

@@ -365,7 +365,7 @@ class SaveModelView(APIView):
 
         config = request.data.get('config')
         dataset = request.data.get('dataset')
-
+        
         name = request.data.get('name')
         lst = name.split()
         lst1 = []
@@ -373,7 +373,7 @@ class SaveModelView(APIView):
             i = i.capitalize()
             lst1.append(i)
             
-        save_name = ' '.join(lst1)
+        name = ' '.join(lst1)
 
         accuracy = request.data.get('accuracy')
 
@@ -507,7 +507,7 @@ class SaveModelView(APIView):
 
         # Prepare data for serializer
         data = {
-            "name": save_name,
+            "name": name,
             "user": request.user.id,
             "dataset": dataset,
             "algorithm": config_obj.model_type,

@@ -507,7 +507,7 @@ class SaveModelView(APIView):
 
         # Prepare data for serializer
         data = {
-            "name": save_name,
+            "name": name,
             "user": request.user.id,
             "dataset": dataset,
             "algorithm": config_obj.model_type,
