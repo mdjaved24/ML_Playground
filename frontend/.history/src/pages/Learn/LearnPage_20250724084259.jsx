@@ -3,12 +3,12 @@ import { ChevronDownIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
 
-import workflowImage from '../../assets/Images/machine-learning-workflow.webp';
-import algorithmSelectionImg from '../../assets/Images/algorithm-selection.png';
-import crossValidationImg from '../../assets/Images/cross-validation.png';
-import confusionMatrixImg from '../../assets/Images/confusion-matrix.png';
-import biasVarianceImg from '../../assets/Images/baise-variance.png';
-import apiDeployment from '../../assets/Images/api-deployment.png';
+import workflowImage from '../assets/Images/machine-learning-workflow.webp';
+import algorithmSelectionImg from '../assets/Images/algorithm-selection.png';
+import crossValidationImg from '../assets/Images/cross-validation.png';
+import confusionMatrixImg from '../assets/Images/confusion-matrix.png';
+import biasVarianceImg from '../assets/Images/bias-variance.png';
+import apiDeployment from '../assets/Images/api-deployment.png';
 
 const LearnPage = () => {
 

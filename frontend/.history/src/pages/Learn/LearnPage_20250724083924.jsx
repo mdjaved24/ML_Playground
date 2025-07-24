@@ -3,12 +3,9 @@ import { ChevronDownIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
 
-import workflowImage from '../../assets/Images/machine-learning-workflow.webp';
-import algorithmSelectionImg from '../../assets/Images/algorithm-selection.png';
-import crossValidationImg from '../../assets/Images/cross-validation.png';
-import confusionMatrixImg from '../../assets/Images/confusion-matrix.png';
-import biasVarianceImg from '../../assets/Images/baise-variance.png';
-import apiDeployment from '../../assets/Images/api-deployment.png';
+import workflowImage from '../assets/Images/machine-learning-workflow.webp';
+import algorithmSelectionImg from '../assets/Images/algorithm-selection.png';
+import crossValidationImg from '../assets/Images/cross-validation.png';
 
 const LearnPage = () => {
 
@@ -894,7 +891,7 @@ scores = cross_val_score(
               
               <div className="my-6">
                 <h3 className="text-xl font-medium text-[var(--color-gray-800)] mb-2">Confusion Matrix</h3>
-                <img src={confusionMatrixImg} alt="Confusion Matrix" className="w-full max-w-md mx-auto rounded border border-[var(--color-gray-200)]" />
+                <img src="src\assets\Images\confusion-matrix.png" alt="Confusion Matrix" className="w-full max-w-md mx-auto rounded border border-[var(--color-gray-200)]" />
                 <p className="text-sm text-center mt-2 text-[var(--color-gray-600)]">Visual representation of classification performance</p>
               </div>
               
@@ -1022,7 +1019,7 @@ print(f"R²: {r2:.2f}")`}
               
               <div className="my-6">
                 <h3 className="text-xl font-medium text-[var(--color-gray-800)] mb-2">Bias-Variance Tradeoff Visualization</h3>
-                <img src={biasVarianceImg} alt="Bias-Variance Tradeoff" className="w-full max-w-2xl mx-auto rounded border border-[var(--color-gray-200)]" />
+                <img src="src\assets\Images\baise-variance.png" alt="Bias-Variance Tradeoff" className="w-full max-w-2xl mx-auto rounded border border-[var(--color-gray-200)]" />
                 <p className="text-sm text-center mt-2 text-[var(--color-gray-600)]">The relationship between model complexity and error</p>
               </div>
               
@@ -1165,7 +1162,7 @@ if __name__ == '__main__':
               
               <div className="my-6">
                 <h3 className="text-xl font-medium text-[var(--color-gray-800)] mb-2">API Deployment Architecture</h3>
-                <img src={apiDeployment} alt="API Deployment Architecture" className="w-full max-w-2xl mx-auto rounded border border-[var(--color-gray-200)]" />
+                <img src="src\assets\Images\api-deployment.png" alt="API Deployment Architecture" className="w-full max-w-2xl mx-auto rounded border border-[var(--color-gray-200)]" />
                 <p className="text-sm text-center mt-2 text-[var(--color-gray-600)]">Typical architecture for deploying ML models as APIs</p>
               </div>
             </div>
