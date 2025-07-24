@@ -1,0 +1,16 @@
+".env" 
+# Ignore all .env files in all directories
+**/.env
+**/.env*
+
+# Specifically ignore backend and frontend environment files
+backend/.env
+backend/.env.*
+frontend/.env
+frontend/.env.*
+
+# Optional: Ignore common environment file patterns
+.env.local
+.env.development
+.env.production
+.env.test

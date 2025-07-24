@@ -23,6 +23,9 @@ from django.core.files.base import ContentFile
 import uuid
 from django.db.models import Avg, Count, Case, When, Value, CharField
 from sklearn import logger
+from storages.backends.s3boto3 import S3Boto3Storage
+from django.core.files.base import ContentFile
+import io
 
 from backend_app.models import UploadedDataset, ModelConfig, SavedModel
 from backend_app.files.serializers import (
@@ -183,6 +186,8 @@ class ModelTrainigView(APIView):
                 return Response({"error": "No file uploaded"}, status=400)
 
             dataset = request.FILES['dataset']
+            print(dataset)
+            print(pd.read_csv(dataset).head())
             name = request.data.get('name')
 
             lst = name.split()
@@ -217,11 +222,22 @@ class ModelTrainigView(APIView):
             file_instance, created = UploadedDataset.objects.get_or_create(
                 dataset_hash=dataset_hash,
                 defaults={
-                    'dataset': dataset,
                     'name': name,
                     'user': request.user
                 }
             )
+
+            if created:
+                # Save file content to variable first
+                file_content = dataset.read()
+                # Create new ContentFile from the content
+                file_instance.dataset.save(
+                    dataset.name,
+                    ContentFile(file_content)
+                )
+                file_instance.save()
+                # Reset original file for reading
+                dataset.file = io.BytesIO(file_content)
 
             # 5. Prepare data for config serializer
             serializer_data = {
@@ -239,10 +255,25 @@ class ModelTrainigView(APIView):
 
             # 6. Read and validate the dataset
             try:
-                df = pd.read_csv(file_instance.dataset)
+                # Check file extension and read appropriately
+                dataset.seek(0)
 
-                if df.empty:
-                    return Response({"error": "Uploaded file is empty"}, status=400)
+                if dataset.name.lower().endswith('.csv'):
+                    df = pd.read_csv(dataset)
+                elif dataset.name.lower().endswith(('.xls', '.xlsx')):
+                    df = pd.read_excel(dataset)
+                else:
+                    return Response(
+                        {"error": "Unsupported file format"},
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+
+                # Validate dataframe
+                if df.empty or len(df.columns) == 0:
+                    return Response(
+                        {"error": "Uploaded file is empty or has no columns"},
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
 
                 # Validate features and target exist in dataset
                 missing_features = [f for f in config['features'] if f not in df.columns]
@@ -320,6 +351,12 @@ class ModelTrainigView(APIView):
                     'target_encoder_cache_key': target_encoder_cache_key
                 })
 
+            except pd.errors.EmptyDataError:
+                return Response(
+                    {"error": "Uploaded file is empty or corrupt"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+                
             except Exception as e:
                 return Response({"error": f"Model training failed: {str(e)}"}, status=400)
 
@@ -405,11 +442,10 @@ class SaveModelView(APIView):
         # Save model file
         try:
             model_file_name = f'{name}_{uuid.uuid4().hex[:8]}.joblib'
-            model_file_path = os.path.join(settings.MEDIA_ROOT, 'saved_models', model_file_name)
-            os.makedirs(os.path.dirname(model_file_path), exist_ok=True)
-            joblib.dump(model, model_file_path)
-            with open(model_file_path, 'rb') as f:
-                model_file_content = ContentFile(f.read(), name=model_file_name)
+            buffer = io.BytesIO()
+            joblib.dump(model, buffer)
+            buffer.seek(0)
+            model_file_content = ContentFile(buffer.getvalue(), name=model_file_name)
         except Exception as e:
             return Response(
                 {'error': f'Error saving model: {str(e)}'},
@@ -420,12 +456,11 @@ class SaveModelView(APIView):
         encoder_file_content = None
         if encoder:
             try:
-                encoder_file_name = f'{name}_encoder_{uuid.uuid4().hex[:8]}.joblib'
-                encoder_file_path = os.path.join(settings.MEDIA_ROOT, 'saved_encoders', encoder_file_name)
-                os.makedirs(os.path.dirname(encoder_file_path), exist_ok=True)
-                joblib.dump(encoder, encoder_file_path)
-                with open(encoder_file_path, 'rb') as f:
-                    encoder_file_content = ContentFile(f.read(), name=encoder_file_name)
+                    encoder_file_name = f'{name}_encoder_{uuid.uuid4().hex[:8]}.joblib'
+                    buffer = io.BytesIO()
+                    joblib.dump(encoder, buffer)
+                    buffer.seek(0)
+                    encoder_file_content = ContentFile(buffer.getvalue(), name=encoder_file_name)
             except Exception as e:
                 return Response(
                     {'error': f'Error saving encoder: {str(e)}'},
@@ -437,11 +472,10 @@ class SaveModelView(APIView):
         if scaler:
             try:
                 scaler_file_name = f'{name}_scaler_{uuid.uuid4().hex[:8]}.joblib'
-                scaler_file_path = os.path.join(settings.MEDIA_ROOT, 'saved_scalers', scaler_file_name)
-                os.makedirs(os.path.dirname(scaler_file_path), exist_ok=True)
-                joblib.dump(scaler, scaler_file_path)
-                with open(scaler_file_path, 'rb') as f:
-                    scaler_file_content = ContentFile(f.read(), name=scaler_file_name)
+                buffer = io.BytesIO()
+                joblib.dump(scaler, buffer)
+                buffer.seek(0)
+                scaler_file_content = ContentFile(buffer.getvalue(), name=scaler_file_name)
             except Exception as e:
                 return Response(
                     {'error': f'Error saving scaler: {str(e)}'},
@@ -453,11 +487,10 @@ class SaveModelView(APIView):
         if target_encoder:
             try:
                 target_encoder_name = f'{name}_target_encoder_{uuid.uuid4().hex[:8]}.joblib'
-                target_encoder_path = os.path.join(settings.MEDIA_ROOT, 'saved_target_encoders', target_encoder_name)
-                os.makedirs(os.path.dirname(target_encoder_path), exist_ok=True)
-                joblib.dump(target_encoder, target_encoder_path)
-                with open(target_encoder_path, 'rb') as f:
-                    target_encoder_content = ContentFile(f.read(), name=target_encoder_name)
+                buffer = io.BytesIO()
+                joblib.dump(target_encoder, buffer)
+                buffer.seek(0)
+                target_encoder_content = ContentFile(buffer.getvalue(), name=target_encoder_name)
             except Exception as e:
                 return Response(
                     {'error': f'Error saving target encoder: {str(e)}'},
@@ -693,15 +726,33 @@ class PredictionView(APIView):
                     {"error": f"Missing required features: {', '.join(missing_features)}"},
                     status=status.HTTP_400_BAD_REQUEST
                 )
+
+            with saved_model.model_file.open('rb') as f:
+                model = joblib.load(f)
+
+            encoder = None
+            if saved_model.encoder_file:
+                with saved_model.encoder_file.open('rb') as f:
+                    encoder = joblib.load(f)
+
+            scaler = None
+            if saved_model.scaler_file:
+                with saved_model.scaler_file.open('rb') as f:
+                    scaler = joblib.load(f)
+
+            target_encoder = None
+            if saved_model.target_encoder:
+                with saved_model.target_encoder.open('rb') as f:
+                    target_encoder = joblib.load(f)
             
             # Make prediction
             prediction = load_model_and_predict(
-                model_path=saved_model.model_file.path,
+                model=model,
                 features=features,
                 columns=expected_columns,
-                encoder=saved_model.encoder_file.path if saved_model.encoder_file else None,
-                scaler=saved_model.scaler_file.path if saved_model.scaler_file else None,
-                target_encoder=saved_model.target_encoder.path if saved_model.target_encoder else None
+                encoder=encoder,
+                scaler=scaler,
+                target_encoder=target_encoder
             )
             
             return Response({
@@ -750,14 +801,21 @@ class ModelDownloadView(APIView):
             zip_buffer = io.BytesIO()
             with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
                 # Add model file
-                if saved_model.model_file and os.path.exists(saved_model.model_file.path):
-                    zip_file.write(saved_model.model_file.path, 'model.joblib')
-                if saved_model.encoder_file and os.path.exists(saved_model.encoder_file.path):
-                    zip_file.write(saved_model.encoder_file.path, 'encoder.joblib')
-                if saved_model.scaler_file and os.path.exists(saved_model.scaler_file.path):
-                    zip_file.write(saved_model.scaler_file.path, 'scaler.joblib')
-                if saved_model.target_encoder and os.path.exists(saved_model.target_encoder.path):
-                    zip_file.write(saved_model.target_encoder.path, 'target_encoder.joblib')
+                if saved_model.model_file:
+                    with saved_model.model_file.open('rb') as f:
+                        zip_file.writestr('model.joblib', f.read())
+                
+                if saved_model.encoder_file:
+                    with saved_model.encoder_file.open('rb') as f:
+                        zip_file.writestr('encoder.joblib', f.read())
+                
+                if saved_model.scaler_file:
+                    with saved_model.scaler_file.open('rb') as f:
+                        zip_file.writestr('scaler.joblib', f.read())
+                
+                if saved_model.target_encoder:
+                    with saved_model.target_encoder.open('rb') as f:
+                        zip_file.writestr('target_encoder.joblib', f.read())
             
             zip_buffer.seek(0)
             response = HttpResponse(zip_buffer, content_type='application/zip')

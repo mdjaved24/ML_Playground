@@ -15,6 +15,10 @@ import dj_database_url
 from pathlib import Path
 from pathlib import Path
 
+from dotenv import load_dotenv
+
+load_dotenv()  # Load environment variables
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -30,6 +34,27 @@ DEBUG = config('DEBUG', default=False, cast=bool)
 
 # Allowed hosts (comma-separated in .env or Render)
 ALLOWED_HOSTS = ['.onrender.com', '127.0.0.1', 'localhost']
+
+
+# Cloud Storage Settings
+
+# Backblaze B2 Configuration
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
+AWS_STORAGE_BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME')
+AWS_S3_ENDPOINT_URL = os.getenv('AWS_S3_ENDPOINT_URL')
+AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.us-east-005.backblazeb2.com'
+AWS_DEFAULT_ACL = os.getenv('AWS_DEFAULT_ACL', 'private')
+AWS_QUERYSTRING_AUTH = os.getenv('AWS_QUERYSTRING_AUTH', 'True') == 'True'
+AWS_LOCATION = os.getenv('AWS_LOCATION', 'media')
+
+# Signature version
+AWS_S3_SIGNATURE_VERSION = os.getenv('AWS_S3_SIGNATURE_VERSION', 's3v4')
+
+# Performance settings
+AWS_S3_MAX_MEMORY_SIZE = int(os.getenv('AWS_S3_MAX_MEMORY_SIZE', '10000000'))
+AWS_S3_FILE_OVERWRITE = os.getenv('AWS_S3_FILE_OVERWRITE', 'False') == 'True'
 
 
 # Application definition
@@ -66,6 +91,7 @@ MIDDLEWARE = [
 CORS_ALLOWED_ORIGINS = [
     'https://ml-playground-bice.vercel.app',
     'http://localhost:3000',
+    'http://localhost:5173',
 ]
 
 # No need for credentials since you're not using cookies
@@ -163,7 +189,6 @@ USE_TZ = True
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-import os
 
 MEDIA_URL = '/media/'  # URL prefix for media files
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')  # Directory where uploaded files are stored

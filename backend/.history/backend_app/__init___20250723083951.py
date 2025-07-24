@@ -1,1 +1,0 @@
-default_app_config = 'backend_app.apps.BackendAppConfig'

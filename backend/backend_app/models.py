@@ -1,7 +1,9 @@
 from django.db import models
 from django.db.models import JSONField
+from storages.backends.s3boto3 import S3Boto3Storage
 
 from django.contrib.auth.models import User
+
 
 # Create your models here.
 
@@ -27,10 +29,13 @@ class UserSecretAnswer(models.Model):
 class UploadedDataset(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     name = models.CharField(max_length=250)
-    dataset = models.FileField(upload_to='uploads/')
+    dataset = models.FileField(
+        upload_to='uploads/',
+        storage=S3Boto3Storage(),
+        help_text="Upload CSV, XLS, or XLSX files"
+    )
     dataset_hash = models.CharField(max_length=64, unique=True)
     uploaded_at = models.DateTimeField(auto_now_add=True)
-
     def __str__(self):
         return self.name+" | "+self.user.username
 
@@ -58,18 +63,35 @@ class ModelConfig(models.Model):
         return self.dataset.name+" | "+self.user.username
 
 
-
 class SavedModel(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     dataset = models.ForeignKey(UploadedDataset, on_delete=models.CASCADE)
-    name = models.CharField(max_length=100, default=dataset.name)
+    name = models.CharField(max_length=100)
     algorithm = models.CharField(max_length=50)
     accuracy = models.DecimalField(max_digits=6, decimal_places=2)
     config = models.ForeignKey(ModelConfig, on_delete=models.CASCADE)
-    model_file = models.FileField(upload_to='saved_models/')
-    encoder_file = models.FileField(upload_to='saved_encoders/', null=True, blank=True)
-    scaler_file = models.FileField(upload_to='saved_scalers/', null=True, blank=True)
-    target_encoder = models.FileField(upload_to='saved_target_encoders/', null=True, blank=True)
+    model_file = models.FileField(
+        upload_to='saved_models/',
+        storage=S3Boto3Storage(),
+    )
+    encoder_file = models.FileField(
+        upload_to='saved_encoders/',
+        storage=S3Boto3Storage(),
+        null=True,
+        blank=True
+    )
+    scaler_file = models.FileField(
+        upload_to='saved_scalers/',
+        storage=S3Boto3Storage(),
+        null=True,
+        blank=True
+    )
+    target_encoder = models.FileField(
+        upload_to='saved_target_encoders/',
+        storage=S3Boto3Storage(),
+        null=True,
+        blank=True
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     is_active = models.BooleanField(default=True)

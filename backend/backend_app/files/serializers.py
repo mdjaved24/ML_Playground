@@ -32,6 +32,7 @@ class UploadFileSerializer(serializers.ModelSerializer):
         # Save the UploadedDataset instance
         return UploadedDataset.objects.create(**validated_data)
 
+
 class ModelConfigSerializer(serializers.ModelSerializer):
     dataset = serializers.PrimaryKeyRelatedField(queryset=UploadedDataset.objects.all())
     class Meta:

@@ -1489,10 +1489,11 @@ const Playground = () => {
               <div className="flex justify-end">
               <button
                 onClick={handleSaveModel}
-                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-[var(--color-accent-600)] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--color-accent-500)] transition backdrop-blur-sm hover:backdrop-blur-md cursor-pointer"
+                className="inline-flex items-center px-4 py-2 text-sm font-medium rounded-md text-white bg-gradient-to-r from-[var(--color-accent-500)] to-[var(--color-accent-600)] hover:from-[var(--color-accent-600)] hover:to-[var(--color-accent-700)] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--color-accent-500)] transition backdrop-blur-sm cursor-pointer shadow-none"
               >
                 Save Model
               </button>
+
               </div>
             </div>
           )}

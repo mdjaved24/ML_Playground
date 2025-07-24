@@ -272,12 +272,12 @@ def safe_remove_outliers(df, cols, target_col=None):
     return df
 
 
-def load_model_and_predict(model_path, features, columns, encoder=None, scaler=None, target_encoder=None):
+def load_model_and_predict(model, features, columns, encoder, scaler, target_encoder):
     """
     Load a trained model and make predictions on new data.
     
     Args:
-        model_path: Path to saved model file
+        model: saved model file
         features: List of feature values for prediction
         columns: List of column names corresponding to features
         encoder: (Optional) Feature encoder object
@@ -291,21 +291,6 @@ def load_model_and_predict(model_path, features, columns, encoder=None, scaler=N
         ValueError: If prediction fails or inputs are invalid
     """
     try:
-            # Load models and preprocessing objects
-            model = joblib.load(model_path)
-            
-            # Load encoder if path is provided
-            if encoder and isinstance(encoder, str):
-                encoder = joblib.load(encoder)
-            
-            # Load scaler if path is provided
-            if scaler and isinstance(scaler, str):
-                scaler = joblib.load(scaler)
-                
-            # Load target encoder if path is provided
-            if target_encoder and isinstance(target_encoder, str):
-                target_encoder = joblib.load(target_encoder)
-
             # Rest of your prediction logic...
             input_df = pd.DataFrame([features], columns=columns)
             processed_df = input_df.copy()
