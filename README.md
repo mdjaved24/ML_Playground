@@ -14,6 +14,7 @@
 <ul>
   <li><strong>Backend:</strong> Django, Django REST Framework, PostgreSQL</li>
   <li><strong>Frontend:</strong> React (Vite)</li>
+  <li><strong>Storage:</strong> Backblaze B2</li>
   <li><strong>ML Libraries:</strong> scikit-learn, pandas, numpy, joblib</li>
 </ul>
 
