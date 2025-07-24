@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-  <a href="https://your-deployment-link.com" target="_blank">🔗 Live Demo</a><br>
+  <a href="https://ml-playground-bice.vercel.app/" target="_blank">🔗 Live Demo</a><br>
 </p>
 
 <hr />
