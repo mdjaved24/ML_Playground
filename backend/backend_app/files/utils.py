@@ -291,7 +291,7 @@ def load_model_and_predict(model, features, columns, encoder, scaler, target_enc
         ValueError: If prediction fails or inputs are invalid
     """
     try:
-            # Rest of your prediction logic...
+            # Prediction logic...
             input_df = pd.DataFrame([features], columns=columns)
             processed_df = input_df.copy()
 
