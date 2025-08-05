@@ -114,9 +114,10 @@ def preprocess_and_train(df, config):
 
         # Encode target if categorical
         target_encoder = None
-        if y.dtype == 'O':
+        if y.dtype == 'O' or isinstance(y.iloc[0], (bool, np.bool_)):  # Check for both object and bool
             target_encoder = preprocessing.LabelEncoder()
             y = target_encoder.fit_transform(y)
+            y = y.astype(int)  # Force conversion to int
 
         # Validate target class count
         unique_classes = np.unique(y)
@@ -180,6 +181,9 @@ def preprocess_and_train(df, config):
 
         # Evaluation
         predictions = model.predict(X_test)
+        if isinstance(predictions[0], (bool, np.bool_)):
+            predictions = predictions.astype(int)
+            
         end_time = time.time()
         training_time = round(end_time - start_time, 2)
 
@@ -207,6 +211,12 @@ def evaluate_model(y_test, prediction, problem_type, features, model):
     Returns:
         dict: Dictionary containing evaluation metrics and feature importance
     """
+    # Convert any boolean inputs
+    if y_test.dtype == bool or np.issubdtype(y_test.dtype, np.bool_):
+        y_test = y_test.astype(int)
+    if isinstance(prediction[0], (bool, np.bool_)):
+        prediction = prediction.astype(int)
+        
     accuracy = {}
     
     if problem_type == 'classification':
