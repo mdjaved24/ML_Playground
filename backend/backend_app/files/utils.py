@@ -143,8 +143,9 @@ def preprocess_and_train(df, config):
                 for col in categorical_cols:
                     le = preprocessing.LabelEncoder()
                     X_train[col] = le.fit_transform(X_train[col])
+                    classes_list = list(le.classes_)  # convert numpy array to python list
                     X_test[col] = X_test[col].map(
-                        lambda x: le.transform([x])[0] if x in le.classes_ else len(le.classes_)
+                        lambda x: le.transform([x])[0] if x in classes_list else len(classes_list)
                     )
                     label_encoders[col] = le
                 feature_encoder = label_encoders
